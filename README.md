@@ -1,36 +1,65 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# GymLabs - Sistema de Gestión para Gimnasios 🏋️‍♂️
 
-## Getting Started
+GymLabs es una plataforma moderna diseñada para la gestión administrativa de gimnasios y centros de entrenamiento. Este repositorio contiene el **Frontend** de la aplicación, construido con un enfoque en rendimiento, diseño atractivo y experiencia de usuario.
 
-First, run the development server:
+## ✨ Características Principales
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+*   📊 **Dashboard Interactivo:** Métricas en tiempo real de ingresos, clientes activos y membresías usando `recharts`.
+*   👥 **Directorio de Usuarios (CRUD):** Registro, edición y eliminación segura de clientes con validaciones robustas.
+*   🔍 **Búsqueda Dinámica:** Filtrado en tiempo real por nombre, apellido o DNI sin recargar la página.
+*   📄 **Paginación Inteligente:** Visualización fluida de datos grandes (10, 30 o 50 usuarios por vista).
+*   📥 **Exportación a Excel:** Descarga instantánea de la base de datos de usuarios en formato `.xlsx`.
+*   🎨 **Diseño Moderno:** Interfaz oscura (Dark Mode), con acentos neón, 100% responsiva.
+*   🏗️ **Arquitectura Basada en Componentes:** Código estructurado, limpio y fácil de mantener usando Custom Hooks.
+
+## 🛠️ Tecnologías Utilizadas
+
+*   **Framework:** [Next.js](https://nextjs.org/) (App Router)
+*   **Librería Principal:** [React 18](https://react.dev/)
+*   **Estilos:** [Tailwind CSS](https://tailwindcss.com/)
+*   **Componentes UI:** [shadcn/ui](https://ui.shadcn.com/) (Botones, Tablas, Modales, Inputs)
+*   **Gráficos:** [Recharts](https://recharts.org/)
+*   **Iconos:** [Lucide React](https://lucide.dev/)
+*   **Exportación de Datos:** [SheetJS (xlsx)](https://sheetjs.com/)
+
+## 🚀 Instalación y Uso Local
+
+Sigue estos pasos para ejecutar el proyecto en tu máquina local:
+
+1. **Clonar el repositorio:**
+   ```bash
+   git clone https://github.com/Palomon12/GymLabs.git
+   cd GymLabs
+   ```
+
+2. **Instalar dependencias:**
+   ```bash
+   npm install
+   ```
+
+3. **Ejecutar el servidor de desarrollo:**
+   ```bash
+   npm run dev
+   ```
+
+4. **Abrir en el navegador:**
+   Navega a [http://localhost:3000](http://localhost:3000) para ver la aplicación en funcionamiento.
+
+> **Nota:** Para que el frontend funcione al 100%, es necesario tener el backend (Spring Boot) corriendo en paralelo en el puerto `8081`.
+
+## 📁 Estructura del Proyecto
+
+```text
+src/
+├── app/                  # Rutas de Next.js (Dashboard, Login, etc.)
+├── components/           
+│   ├── layout/           # Componentes estructurales (Sidebar, Navbar)
+│   ├── ui/               # Componentes genéricos (Botones, Inputs, Tablas)
+│   └── users/            # Componentes específicos del directorio de usuarios
+├── hooks/                # Custom Hooks (ej. useUsers para lógica de API)
+├── lib/                  # Utilidades y funciones de ayuda
+└── types/                # Interfaces de TypeScript (ej. Cliente)
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 👥 Contribuciones
+¡Las contribuciones son bienvenidas! Si deseas proponer mejoras, abre un *Issue* o envía un *Pull Request*.
