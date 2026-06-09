@@ -1,26 +1,70 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  /* Colors */
+  --color-primary: #c3f400; /* Vibrant Lime */
+  --color-primary-hover: #abd600;
+  --color-background: #0F1A15; /* Level 0 Background - Void Green */
+  --color-surface: #16241F; /* Level 1 Cards/Tables */
+  --color-surface-hover: #1A2E26;
+  --color-surface-modal: #1E332B; /* Level 2 Modals */
+  --color-sidebar: #121A16; /* Deep Forest Secondary */
+  --color-border: #2A3F36; /* Outline */
+  --color-text-main: #e5e2e1;
+  --color-text-muted: #a7beb2;
+  --color-input-bg: #0A0F0D;
+  --color-alert: #93000a;
+  
+  --color-status-active-bg: #1B2B24;
+  --color-status-active-text: #c3f400;
+  --color-status-expiring-bg: #3E2914;
+  --color-status-expiring-text: #FFB347;
+  --color-status-inactive-bg: #222222;
+  --color-status-inactive-text: #e5e2e1;
+
+  /* Typography */
+  --font-sans: var(--font-hanken), "Hanken Grotesk", sans-serif;
+  --font-mono: var(--font-geist-mono), "Geist", monospace;
+
+  /* Spacing */
+  --spacing-base: 4px;
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 40px;
+  --spacing-sidebar-expanded: 260px;
+  --spacing-sidebar-collapsed: 64px;
+
+  /* Border Radius */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-full: 9999px;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+/* Global Styles */
+@layer base {
+  body {
+    @apply bg-background text-text-main font-sans antialiased;
+  }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold tracking-tight;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Custom Scrollbar for data tables and sidebar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #2A3F36;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #394d44;
 }

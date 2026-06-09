@@ -1,0 +1,176 @@
+import { 
+  Table, 
+  TableBody, 
+  TableCell, 
+  TableHead, 
+  TableHeader, 
+  TableRow 
+} from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Megaphone, Edit, Trash2 } from "lucide-react";
+import { Cliente } from "@/types/cliente";
+
+interface UsersTableProps {
+  users: Cliente[];
+  loading: boolean;
+  searchTerm: string;
+  currentPage: number;
+  itemsPerPage: number;
+  onEdit: (user: Cliente) => void;
+  onDelete: (id: number) => void;
+  onPageChange: (page: number) => void;
+  onItemsPerPageChange: (items: number) => void;
+}
+
+export function UsersTable({
+  users,
+  loading,
+  searchTerm,
+  currentPage,
+  itemsPerPage,
+  onEdit,
+  onDelete,
+  onPageChange,
+  onItemsPerPageChange
+}: UsersTableProps) {
+  
+  const getExpirationStyle = (fechaRegistro: string) => {
+    if (!fechaRegistro) return { text: "N/A", className: "text-text-muted" };
+    
+    const expiration = new Date(fechaRegistro);
+    expiration.setDate(expiration.getDate() + 30);
+    
+    const today = new Date();
+    const diffTime = expiration.getTime() - today.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    let className = "";
+    if (diffDays > 15) {
+      className = "text-[#c3f400]"; // Verde de la marca
+    } else if (diffDays > 5 && diffDays <= 15) {
+      className = "text-orange-500"; // Naranja
+    } else if (diffDays > 3 && diffDays <= 5) {
+      className = "text-red-500 font-bold"; // Rojo vivo
+    } else {
+      className = "text-red-900/70 font-bold"; // Rojo muy opaco
+    }
+
+    let text = "";
+    if (diffDays < 0) {
+      text = "Vencido";
+    } else if (diffDays === 0) {
+      text = "Vence hoy";
+    } else if (diffDays === 1) {
+      text = "Falta 1 día";
+    } else {
+      text = `Faltan ${diffDays} días`;
+    }
+
+    return { text, className };
+  };
+
+  const filteredUsers = users.filter(user => 
+    user.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    user.apellido.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    user.dni.includes(searchTerm)
+  );
+
+  const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
+  const currentUsers = filteredUsers.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+  return (
+    <>
+      <div className="p-0">
+        <Table>
+          <TableHeader>
+            <TableRow className="border-b border-border bg-[#121212] hover:bg-[#121212]">
+              <TableHead className="w-[300px]">Nombre</TableHead>
+              <TableHead>DNI</TableHead>
+              <TableHead>Estado</TableHead>
+              <TableHead>Vencimiento</TableHead>
+              <TableHead className="text-right">Acciones</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {loading ? (
+              <TableRow>
+                <TableCell colSpan={5} className="text-center py-8 text-text-muted">
+                  Cargando usuarios...
+                </TableCell>
+              </TableRow>
+            ) : filteredUsers.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={5} className="text-center py-8 text-text-muted">
+                  {searchTerm ? "No se encontraron coincidencias para tu búsqueda." : "No se encontraron usuarios."}
+                </TableCell>
+              </TableRow>
+            ) : (
+              currentUsers.map((user) => (
+                <TableRow key={user.idCliente}>
+                  <TableCell className="font-medium text-text-main">{user.nombre} {user.apellido}</TableCell>
+                  <TableCell className="text-text-muted font-mono">{user.dni}</TableCell>
+                  <TableCell>
+                    <Badge variant="active">Activo</Badge>
+                  </TableCell>
+                  <TableCell className={getExpirationStyle(user.fechaRegistro).className}>
+                    {getExpirationStyle(user.fechaRegistro).text}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex items-center justify-end gap-2">
+                      <Button variant="secondary" className="h-8 px-3 text-xs font-mono font-medium border-[#2A3F36] text-text-muted hover:text-primary hover:border-primary">
+                        <Megaphone className="w-3 h-3 mr-2" /> Alerta
+                      </Button>
+                      <Button variant="secondary" className="h-8 w-8 p-0 border-[#2A3F36] text-text-muted hover:text-blue-500 hover:border-blue-500" onClick={() => onEdit(user)}>
+                        <Edit className="w-4 h-4" />
+                      </Button>
+                      <Button variant="secondary" className="h-8 w-8 p-0 border-[#2A3F36] text-text-muted hover:text-red-500 hover:border-red-500" onClick={() => onDelete(user.idCliente)}>
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </div>
+      
+      <div className="p-4 border-t border-border flex items-center justify-between">
+        <div className="flex items-center gap-2 text-sm text-text-muted">
+          <span>Mostrando</span>
+          <select 
+            value={itemsPerPage} 
+            onChange={(e) => onItemsPerPageChange(Number(e.target.value))}
+            className="h-8 rounded-md border border-border bg-sidebar px-2 text-text-main focus:outline-none focus:ring-1 focus:ring-primary"
+          >
+            <option value={10}>10</option>
+            <option value={30}>30</option>
+            <option value={50}>50</option>
+          </select>
+          <span>de {filteredUsers.length} usuarios</span>
+        </div>
+        <div className="flex gap-2">
+          <Button 
+            variant="secondary" 
+            className="h-8 w-8 p-0 border-[#2A3F36] text-text-muted hover:text-text-main" 
+            disabled={currentPage === 1}
+            onClick={() => onPageChange(Math.max(1, currentPage - 1))}
+          >
+             <span className="sr-only">Anterior</span>
+             &lt;
+          </Button>
+          <Button 
+            variant="secondary" 
+            className="h-8 w-8 p-0 border-[#2A3F36] text-text-muted hover:text-text-main"
+            disabled={currentPage >= totalPages || filteredUsers.length === 0}
+            onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
+          >
+             <span className="sr-only">Siguiente</span>
+             &gt;
+          </Button>
+        </div>
+      </div>
+    </>
+  );
+}
