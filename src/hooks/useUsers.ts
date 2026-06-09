@@ -8,7 +8,7 @@ export function useUsers() {
   const fetchUsers = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:8081/api/clientes");
+      const res = await fetch("https://gymlabs-backend.onrender.com/api/clientes");
       const data = await res.json();
       setUsers(data);
     } catch (err) {
@@ -21,8 +21,8 @@ export function useUsers() {
   const saveUser = async (userPayload: any, editingId: number | null) => {
     const isEditing = editingId !== null;
     const url = isEditing 
-      ? `http://localhost:8081/api/clientes/${editingId}`
-      : "http://localhost:8081/api/clientes";
+      ? `https://gymlabs-backend.onrender.com/api/clientes/${editingId}`
+      : "https://gymlabs-backend.onrender.com/api/clientes";
 
     const response = await fetch(url, {
       method: isEditing ? "PUT" : "POST",
@@ -40,7 +40,7 @@ export function useUsers() {
   };
 
   const deleteUser = async (id: number) => {
-    const response = await fetch(`http://localhost:8081/api/clientes/${id}`, {
+    const response = await fetch(`https://gymlabs-backend.onrender.com/api/clientes/${id}`, {
       method: "DELETE"
     });
 

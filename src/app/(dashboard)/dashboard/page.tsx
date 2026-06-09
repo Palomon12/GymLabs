@@ -33,7 +33,7 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("http://localhost:8081/api/dashboard/stats")
+    fetch("https://gymlabs-backend.onrender.com/api/dashboard/stats")
       .then(res => res.json())
       .then(data => {
         setStats(data);
