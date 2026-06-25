@@ -31,21 +31,27 @@ interface DashboardStats {
 export default function DashboardPage() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isFetching, setIsFetching] = useState(false);
 
   const [selectedMonth, setSelectedMonth] = useState<number>(new Date().getMonth() + 1);
   const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
 
   useEffect(() => {
-    setLoading(true);
+    // Solo mostrar pantalla de carga completa si no hay datos iniciales
+    if (!stats) setLoading(true);
+    else setIsFetching(true);
+    
     fetch(`https://gymlabs-backend.onrender.com/api/dashboard/stats?mes=${selectedMonth}&anio=${selectedYear}`)
       .then(res => res.json())
       .then(data => {
         setStats(data);
         setLoading(false);
+        setIsFetching(false);
       })
       .catch(err => {
         console.error("Error fetching dashboard stats:", err);
         setLoading(false);
+        setIsFetching(false);
       });
   }, [selectedMonth, selectedYear]);
 
@@ -56,6 +62,9 @@ export default function DashboardPage() {
   // Meta Mensual Fija (Visual)
   const metaMensual = 10000;
   const progresoMeta = stats ? Math.min((stats.ingresosMes / metaMensual) * 100, 100) : 0;
+  
+  // Clase CSS dinámica para el efecto de difuminado
+  const blurClass = isFetching ? "opacity-50 blur-[2px] transition-all duration-500 ease-in-out cursor-wait pointer-events-none" : "opacity-100 blur-0 transition-all duration-500 ease-in-out";
 
   return (
     <div className="space-y-8">
@@ -102,10 +111,10 @@ export default function DashboardPage() {
             <p className="text-sm font-semibold text-text-muted tracking-wide uppercase">Ingresos del Mes</p>
             <DollarSign className="w-5 h-5 text-primary" />
           </div>
-          <div className="mt-4">
-            <h3 className="text-4xl font-bold text-text-main">${stats?.ingresosMes.toFixed(2)}</h3>
+          <div className={`mt-4 ${blurClass}`}>
+            <h3 className="text-4xl font-bold text-text-main">${stats?.ingresosMes?.toFixed(2) || "0.00"}</h3>
           </div>
-          <div className="mt-4 space-y-2">
+          <div className={`mt-4 space-y-2 ${blurClass}`}>
             <div className="flex justify-between text-xs text-text-muted">
               <span>Meta: ${metaMensual}</span>
               <span>{progresoMeta.toFixed(1)}%</span>
@@ -124,7 +133,7 @@ export default function DashboardPage() {
             <p className="text-sm font-semibold text-text-muted tracking-wide uppercase">Total Clientes</p>
             <Users className="w-5 h-5 text-primary" />
           </div>
-          <div className="mt-4">
+          <div className={`mt-4 ${blurClass}`}>
             <h3 className="text-4xl font-bold text-text-main">{stats?.totalClientes}</h3>
           </div>
           <p className="text-xs text-text-muted mt-4">Usuarios registrados activos.</p>
@@ -135,7 +144,7 @@ export default function DashboardPage() {
             <p className="text-sm font-semibold text-text-muted tracking-wide uppercase">Membresías Activas</p>
             <Activity className="w-5 h-5 text-primary" />
           </div>
-          <div className="mt-4">
+          <div className={`mt-4 ${blurClass}`}>
             <h3 className="text-4xl font-bold text-text-main">{stats?.membresiasActivas}</h3>
           </div>
           <p className="text-xs text-text-muted mt-4">Planes actualmente en curso.</p>
@@ -146,7 +155,7 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card className="p-6 bg-surface border-border">
           <h3 className="text-lg font-semibold mb-6">Evolución de Ingresos</h3>
-          <div className="h-[300px] w-full">
+          <div className={`h-[300px] w-full ${blurClass}`}>
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={stats?.graficoIngresos}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#2a2a2a" vertical={false} />
@@ -164,7 +173,7 @@ export default function DashboardPage() {
 
         <Card className="p-6 bg-surface border-border">
           <h3 className="text-lg font-semibold mb-6">Nuevos Clientes</h3>
-          <div className="h-[300px] w-full">
+          <div className={`h-[300px] w-full ${blurClass}`}>
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={stats?.graficoNuevosClientes}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#2a2a2a" vertical={false} />
