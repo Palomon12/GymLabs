@@ -19,6 +19,7 @@ interface UsersTableProps {
   itemsPerPage: number;
   onEdit: (user: Cliente) => void;
   onDelete: (id: number) => void;
+  onToggleStatus: (id: number) => void;
   onPageChange: (page: number) => void;
   onItemsPerPageChange: (items: number) => void;
 }
@@ -31,6 +32,7 @@ export function UsersTable({
   itemsPerPage,
   onEdit,
   onDelete,
+  onToggleStatus,
   onPageChange,
   onItemsPerPageChange
 }: UsersTableProps) {
@@ -106,12 +108,33 @@ export function UsersTable({
                 </TableCell>
               </TableRow>
             ) : (
-              currentUsers.map((user) => (
-                <TableRow key={user.idCliente}>
+              currentUsers.map((user) => {
+                const isInactive = user.activo === false;
+                
+                return (
+                <TableRow key={user.idCliente} className={isInactive ? "opacity-50 transition-opacity" : "transition-opacity"}>
                   <TableCell className="font-medium text-text-main">{user.nombre} {user.apellido}</TableCell>
                   <TableCell className="text-text-muted font-mono">{user.dni}</TableCell>
                   <TableCell>
-                    <Badge variant="active">Activo</Badge>
+                    <div className="flex items-center gap-3">
+                      {/* Toggle Switch */}
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input 
+                          type="checkbox" 
+                          className="sr-only peer" 
+                          checked={!isInactive} 
+                          onChange={() => onToggleStatus(user.idCliente)} 
+                        />
+                        <div className="w-9 h-5 bg-[#2A3F36] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#c3f400]"></div>
+                      </label>
+                      
+                      {/* Badge de Estado */}
+                      {!isInactive ? (
+                        <Badge variant="active">Activo</Badge>
+                      ) : (
+                        <Badge variant="destructive" className="bg-red-900/30 text-red-500 border border-red-900/50">Inactivo</Badge>
+                      )}
+                    </div>
                   </TableCell>
                   <TableCell className={getExpirationStyle(user.fechaRegistro).className}>
                     {getExpirationStyle(user.fechaRegistro).text}
@@ -130,7 +153,8 @@ export function UsersTable({
                     </div>
                   </TableCell>
                 </TableRow>
-              ))
+                );
+              })
             )}
           </TableBody>
         </Table>

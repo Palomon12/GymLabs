@@ -7,4 +7,5 @@ export interface Cliente {
   correo: string;
   direccion: string;
   fechaRegistro: string;
+  activo?: boolean;
 }

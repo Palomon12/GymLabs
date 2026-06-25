@@ -10,7 +10,7 @@ import { UserDeleteModal } from "@/components/users/UserDeleteModal";
 import { Cliente } from "@/types/cliente";
 
 export default function UsersPage() {
-  const { users, loading, fetchUsers, saveUser, deleteUser } = useUsers();
+  const { users, loading, fetchUsers, saveUser, deleteUser, toggleUserStatus } = useUsers();
   
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -98,6 +98,7 @@ export default function UsersPage() {
           itemsPerPage={itemsPerPage}
           onEdit={handleEdit}
           onDelete={handleDeleteClick}
+          onToggleStatus={toggleUserStatus}
           onPageChange={setCurrentPage}
           onItemsPerPageChange={(items) => {
             setItemsPerPage(items);

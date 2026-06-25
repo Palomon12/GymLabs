@@ -52,11 +52,27 @@ export function useUsers() {
     await fetchUsers();
   };
 
+  const toggleUserStatus = async (id: number) => {
+    // Optimistic update locally
+    setUsers(prev => prev.map(u => u.idCliente === id ? { ...u, activo: !u.activo } : u));
+    
+    const response = await fetch(`https://gymlabs-backend.onrender.com/api/clientes/${id}/toggle-estado`, {
+      method: "PATCH"
+    });
+
+    if (!response.ok) {
+      // Revert if error
+      await fetchUsers();
+      throw new Error("Error al cambiar estado.");
+    }
+  };
+
   return {
     users,
     loading,
     fetchUsers,
     saveUser,
-    deleteUser
+    deleteUser,
+    toggleUserStatus
   };
 }
