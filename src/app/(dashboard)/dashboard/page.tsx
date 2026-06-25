@@ -32,8 +32,12 @@ export default function DashboardPage() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const [selectedMonth, setSelectedMonth] = useState<number>(new Date().getMonth() + 1);
+  const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
+
   useEffect(() => {
-    fetch("https://gymlabs-backend.onrender.com/api/dashboard/stats")
+    setLoading(true);
+    fetch(`https://gymlabs-backend.onrender.com/api/dashboard/stats?mes=${selectedMonth}&anio=${selectedYear}`)
       .then(res => res.json())
       .then(data => {
         setStats(data);
@@ -43,7 +47,7 @@ export default function DashboardPage() {
         console.error("Error fetching dashboard stats:", err);
         setLoading(false);
       });
-  }, []);
+  }, [selectedMonth, selectedYear]);
 
   if (loading) {
     return <div className="flex h-[50vh] items-center justify-center text-text-muted">Cargando métricas...</div>;
@@ -55,9 +59,40 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h2 className="text-3xl font-bold tracking-tight mb-1">Dashboard</h2>
-        <p className="text-text-muted">Métricas y rendimiento de tu gimnasio en tiempo real.</p>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h2 className="text-3xl font-bold tracking-tight mb-1">Dashboard</h2>
+          <p className="text-text-muted">Métricas y rendimiento de tu gimnasio en tiempo real.</p>
+        </div>
+        <div className="flex gap-2">
+          <select 
+            className="h-10 rounded-md border border-border bg-surface px-3 text-sm text-text-main focus:outline-none focus:ring-1 focus:ring-primary"
+            value={selectedMonth}
+            onChange={(e) => setSelectedMonth(Number(e.target.value))}
+          >
+            <option value={1}>Enero</option>
+            <option value={2}>Febrero</option>
+            <option value={3}>Marzo</option>
+            <option value={4}>Abril</option>
+            <option value={5}>Mayo</option>
+            <option value={6}>Junio</option>
+            <option value={7}>Julio</option>
+            <option value={8}>Agosto</option>
+            <option value={9}>Septiembre</option>
+            <option value={10}>Octubre</option>
+            <option value={11}>Noviembre</option>
+            <option value={12}>Diciembre</option>
+          </select>
+          <select 
+            className="h-10 rounded-md border border-border bg-surface px-3 text-sm text-text-main focus:outline-none focus:ring-1 focus:ring-primary"
+            value={selectedYear}
+            onChange={(e) => setSelectedYear(Number(e.target.value))}
+          >
+            <option value={2025}>2025</option>
+            <option value={2026}>2026</option>
+            <option value={2027}>2027</option>
+          </select>
+        </div>
       </div>
 
       {/* KPI Cards */}
