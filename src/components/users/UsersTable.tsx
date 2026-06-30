@@ -129,7 +129,7 @@ export function UsersTable({
                       {!isInactive ? (
                         <Badge variant="active">Activo</Badge>
                       ) : (
-                        <Badge variant="destructive" className="bg-red-900/30 text-red-500 border border-red-900/50">Inactivo</Badge>
+                        <Badge variant="inactive" className="bg-red-900/30 text-red-500 border-red-500/50">Inactivo</Badge>
                       )}
                     </div>
                   </TableCell>
