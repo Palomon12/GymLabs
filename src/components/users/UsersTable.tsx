@@ -47,11 +47,16 @@ export function UsersTable({
       setPendingToggleId(null);
     }
   };
-  const getExpirationStyle = (fechaRegistro: string) => {
-    if (!fechaRegistro) return { text: "N/A", className: "text-text-muted" };
-    
-    const expiration = new Date(fechaRegistro);
-    expiration.setDate(expiration.getDate() + 30);
+  const getExpirationStyle = (user: Cliente) => {
+    let expiration: Date;
+    if (user.fechaVencimiento) {
+      expiration = new Date(user.fechaVencimiento);
+    } else if (user.fechaRegistro) {
+      expiration = new Date(user.fechaRegistro);
+      expiration.setDate(expiration.getDate() + 30);
+    } else {
+      return { text: "N/A", className: "text-text-muted" };
+    }
     
     const today = new Date();
     const diffTime = expiration.getTime() - today.getTime();
@@ -172,8 +177,8 @@ export function UsersTable({
                       )}
                     </div>
                   </TableCell>
-                  <TableCell className={getExpirationStyle(user.fechaRegistro).className}>
-                    {getExpirationStyle(user.fechaRegistro).text}
+                  <TableCell className={getExpirationStyle(user).className}>
+                    {getExpirationStyle(user).text}
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-2">
