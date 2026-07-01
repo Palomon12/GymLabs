@@ -8,8 +8,10 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Modal } from "@/components/ui/modal";
 import { Megaphone, Edit, Trash2 } from "lucide-react";
 import { Cliente } from "@/types/cliente";
+import { useState } from "react";
 
 interface UsersTableProps {
   users: Cliente[];
@@ -37,6 +39,14 @@ export function UsersTable({
   onItemsPerPageChange
 }: UsersTableProps) {
   
+  const [pendingToggleId, setPendingToggleId] = useState<number | null>(null);
+
+  const confirmToggle = () => {
+    if (pendingToggleId !== null) {
+      onToggleStatus(pendingToggleId);
+      setPendingToggleId(null);
+    }
+  };
   const getExpirationStyle = (fechaRegistro: string) => {
     if (!fechaRegistro) return { text: "N/A", className: "text-text-muted" };
     
@@ -83,6 +93,35 @@ export function UsersTable({
 
   return (
     <>
+      <Modal 
+        isOpen={pendingToggleId !== null} 
+        onClose={() => setPendingToggleId(null)}
+        title="Confirmar Cambio de Estado"
+      >
+        <p className="text-text-muted mb-6">
+          ¿Estás seguro de que deseas cambiar el estado de este cliente? 
+          <br /><br />
+          <span className="text-text-main font-semibold">Al Activar:</span> Se renovará automáticamente su última membresía por 30 días.
+          <br />
+          <span className="text-text-main font-semibold">Al Desactivar:</span> Su membresía actual será marcada como VENCIDA.
+        </p>
+        <div className="flex justify-end gap-3 mt-4">
+          <Button 
+            variant="secondary" 
+            onClick={() => setPendingToggleId(null)}
+            className="bg-[#1A1A1A] border-[#2A3F36] text-text-main hover:bg-[#2A3F36]"
+          >
+            Cancelar
+          </Button>
+          <Button 
+            onClick={confirmToggle}
+            className="bg-primary text-[#121212] hover:bg-[#a6d600]"
+          >
+            Confirmar
+          </Button>
+        </div>
+      </Modal>
+
       <div className="p-0">
         <Table>
           <TableHeader>
@@ -119,7 +158,7 @@ export function UsersTable({
                     <div className="flex items-center gap-3">
                       {/* Toggle Switch */}
                       <button
-                        onClick={() => onToggleStatus(user.idCliente)}
+                        onClick={() => setPendingToggleId(user.idCliente)}
                         className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${!isInactive ? 'bg-primary' : 'bg-[#2A3F36]'}`}
                       >
                         <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${!isInactive ? 'translate-x-[18px]' : 'translate-x-[2px]'}`} />
