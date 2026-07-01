@@ -12,9 +12,18 @@ export function useUsers() {
     try {
       const res = await fetch(`https://gymlabs-backend.onrender.com/api/clientes?page=${page}&size=${size}`);
       const data = await res.json();
-      setUsers(data.content || []);
-      setTotalPages(data.totalPages || 0);
-      setTotalElements(data.totalElements || 0);
+      
+      if (Array.isArray(data)) {
+        // Fallback for when backend hasn't finished deploying yet
+        setUsers(data);
+        setTotalPages(Math.ceil(data.length / size));
+        setTotalElements(data.length);
+      } else {
+        // New Page<Cliente> format
+        setUsers(data.content || []);
+        setTotalPages(data.totalPages || 0);
+        setTotalElements(data.totalElements || 0);
+      }
     } catch (err) {
       console.error("Error fetching clientes:", err);
     } finally {
