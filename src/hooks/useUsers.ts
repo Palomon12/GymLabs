@@ -56,14 +56,21 @@ export function useUsers() {
     // Optimistic update locally
     setUsers(prev => prev.map(u => u.idCliente === id ? { ...u, activo: !u.activo } : u));
     
-    const response = await fetch(`https://gymlabs-backend.onrender.com/api/clientes/${id}/toggle-estado`, {
-      method: "PATCH"
-    });
+    try {
+      const response = await fetch(`https://gymlabs-backend.onrender.com/api/clientes/${id}/toggle-estado`, {
+        method: "PATCH"
+      });
 
-    if (!response.ok) {
+      if (!response.ok) {
+        throw new Error("Error al cambiar estado.");
+      }
+      
+      const updatedUser = await response.json();
+      setUsers(prev => prev.map(u => u.idCliente === id ? updatedUser : u));
+    } catch (error) {
       // Revert if error
       await fetchUsers();
-      throw new Error("Error al cambiar estado.");
+      throw error;
     }
   };
 
