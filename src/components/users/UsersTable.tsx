@@ -19,6 +19,8 @@ interface UsersTableProps {
   searchTerm: string;
   currentPage: number;
   itemsPerPage: number;
+  serverTotalPages: number;
+  serverTotalElements: number;
   onEdit: (user: Cliente) => void;
   onDelete: (id: number) => void;
   onToggleStatus: (id: number) => void;
@@ -32,6 +34,8 @@ export function UsersTable({
   searchTerm,
   currentPage,
   itemsPerPage,
+  serverTotalPages,
+  serverTotalElements,
   onEdit,
   onDelete,
   onToggleStatus,
@@ -93,8 +97,7 @@ export function UsersTable({
     user.dni.includes(searchTerm)
   );
 
-  const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
-  const currentUsers = filteredUsers.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+  const currentUsers = filteredUsers;
 
   return (
     <>
@@ -213,7 +216,7 @@ export function UsersTable({
             <option value={30}>30</option>
             <option value={50}>50</option>
           </select>
-          <span>de {filteredUsers.length} usuarios</span>
+          <span>de {serverTotalElements} usuarios</span>
         </div>
         <div className="flex gap-2">
           <Button 
@@ -228,8 +231,8 @@ export function UsersTable({
           <Button 
             variant="secondary" 
             className="h-8 w-8 p-0 border-[#2A3F36] text-text-muted hover:text-text-main"
-            disabled={currentPage >= totalPages || filteredUsers.length === 0}
-            onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
+            disabled={currentPage >= serverTotalPages}
+            onClick={() => onPageChange(Math.min(serverTotalPages, currentPage + 1))}
           >
              <span className="sr-only">Siguiente</span>
              &gt;

@@ -1,7 +1,6 @@
 import { Search, Filter, Download, Plus } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import * as XLSX from "xlsx";
 import { Cliente } from "@/types/cliente";
 
 interface UsersHeaderProps {
@@ -12,28 +11,39 @@ interface UsersHeaderProps {
 }
 
 export function UsersHeader({ searchTerm, onSearchChange, onOpenNewModal, users }: UsersHeaderProps) {
-  const exportToExcel = () => {
+  const exportToCSV = () => {
     if (users.length === 0) {
       alert("No hay datos para exportar.");
       return;
     }
 
-    const dataToExport = users.map(user => ({
-      "Nombre": user.nombre,
-      "Apellido": user.apellido,
-      "DNI": user.dni,
-      "Teléfono": user.telefono || "N/A",
-      "Correo": user.correo || "N/A",
-      "Dirección": user.direccion || "N/A",
-      "Fecha de Registro": user.fechaRegistro ? new Date(user.fechaRegistro).toLocaleDateString() : "N/A",
-      "Estado": "Activo"
-    }));
+    const headers = ["Nombre", "Apellido", "DNI", "Teléfono", "Correo", "Dirección", "Fecha de Registro", "Estado"];
+    const csvRows = [headers.join(",")];
 
-    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Usuarios");
+    users.forEach(user => {
+      const row = [
+        `"${user.nombre}"`,
+        `"${user.apellido}"`,
+        `"${user.dni}"`,
+        `"${user.telefono || 'N/A'}"`,
+        `"${user.correo || 'N/A'}"`,
+        `"${user.direccion || 'N/A'}"`,
+        `"${user.fechaRegistro ? new Date(user.fechaRegistro).toLocaleDateString() : 'N/A'}"`,
+        `"${user.activo ? 'Activo' : 'Inactivo'}"`
+      ];
+      csvRows.push(row.join(","));
+    });
+
+    const csvString = csvRows.join("\n");
+    const blob = new Blob([csvString], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
     
-    XLSX.writeFile(workbook, "Directorio_Usuarios.xlsx");
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", "Directorio_Usuarios.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   return (
@@ -62,7 +72,7 @@ export function UsersHeader({ searchTerm, onSearchChange, onOpenNewModal, users 
           <Button variant="secondary" className="h-10 flex-1 sm:flex-none">
             <Filter className="w-4 h-4 mr-2" /> Filtros
           </Button>
-          <Button variant="secondary" className="h-10 text-primary border-primary hover:bg-primary/10 flex-1 sm:flex-none" onClick={exportToExcel}>
+          <Button variant="secondary" className="h-10 text-primary border-primary hover:bg-primary/10 flex-1 sm:flex-none" onClick={exportToCSV}>
             <Download className="w-4 h-4 mr-2" /> Exportar
           </Button>
         </div>

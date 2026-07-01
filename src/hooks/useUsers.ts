@@ -4,13 +4,17 @@ import { Cliente } from "@/types/cliente";
 export function useUsers() {
   const [users, setUsers] = useState<Cliente[]>([]);
   const [loading, setLoading] = useState(true);
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalElements, setTotalElements] = useState(0);
 
-  const fetchUsers = useCallback(async () => {
+  const fetchUsers = useCallback(async (page: number = 0, size: number = 10) => {
     setLoading(true);
     try {
-      const res = await fetch("https://gymlabs-backend.onrender.com/api/clientes");
+      const res = await fetch(`https://gymlabs-backend.onrender.com/api/clientes?page=${page}&size=${size}`);
       const data = await res.json();
-      setUsers(data);
+      setUsers(data.content || []);
+      setTotalPages(data.totalPages || 0);
+      setTotalElements(data.totalElements || 0);
     } catch (err) {
       console.error("Error fetching clientes:", err);
     } finally {
@@ -77,6 +81,8 @@ export function useUsers() {
   return {
     users,
     loading,
+    totalPages,
+    totalElements,
     fetchUsers,
     saveUser,
     deleteUser,

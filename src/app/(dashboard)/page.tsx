@@ -10,7 +10,7 @@ import { UserDeleteModal } from "@/components/users/UserDeleteModal";
 import { Cliente } from "@/types/cliente";
 
 export default function UsersPage() {
-  const { users, loading, fetchUsers, saveUser, deleteUser, toggleUserStatus } = useUsers();
+  const { users, loading, totalPages, totalElements, fetchUsers, saveUser, deleteUser, toggleUserStatus } = useUsers();
   
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -26,8 +26,9 @@ export default function UsersPage() {
   const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
-    fetchUsers();
-  }, [fetchUsers]);
+    // page - 1 because Spring Boot pagination is 0-indexed
+    fetchUsers(currentPage - 1, itemsPerPage);
+  }, [fetchUsers, currentPage, itemsPerPage]);
 
   // Handlers for Form
   const handleOpenNew = () => {
@@ -96,6 +97,8 @@ export default function UsersPage() {
           searchTerm={searchTerm}
           currentPage={currentPage}
           itemsPerPage={itemsPerPage}
+          serverTotalPages={totalPages}
+          serverTotalElements={totalElements}
           onEdit={handleEdit}
           onDelete={handleDeleteClick}
           onToggleStatus={toggleUserStatus}
