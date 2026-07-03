@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Building2, Mail, Lock, Eye } from "lucide-react";
 
@@ -59,9 +60,11 @@ export default function LoginPage() {
               </div>
             </div>
 
-            <Button type="button" className="w-full h-12 text-sm mt-4">
-              INICIAR SESIÓN →
-            </Button>
+            <Link href="/" className="w-full block mt-4">
+              <Button type="button" className="w-full h-12 text-sm">
+                INICIAR SESIÓN →
+              </Button>
+            </Link>
           </form>
 
           <div className="w-full h-px bg-border my-8" />
