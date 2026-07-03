@@ -82,7 +82,7 @@ export function useUsers() {
       setUsers(prev => prev.map(u => u.idCliente === id ? updatedUser : u));
     } catch (error) {
       // Revert if error
-      await fetchUsers();
+      setUsers(prev => prev.map(u => u.idCliente === id ? { ...u, activo: !u.activo } : u));
       throw error;
     }
   };
