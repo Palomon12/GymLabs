@@ -12,6 +12,7 @@ import { Modal } from "@/components/ui/modal";
 import { Megaphone, Edit, Trash2 } from "lucide-react";
 import { Cliente } from "@/types/cliente";
 import { useState } from "react";
+import { usePlans } from "@/hooks/usePlans";
 
 interface UsersTableProps {
   users: Cliente[];
@@ -23,7 +24,7 @@ interface UsersTableProps {
   serverTotalElements: number;
   onEdit: (user: Cliente) => void;
   onDelete: (id: number) => void;
-  onToggleStatus: (id: number) => void;
+  onToggleStatus: (id: number, planId?: number) => void;
   onPageChange: (page: number) => void;
   onItemsPerPageChange: (items: number) => void;
 }
@@ -43,14 +44,25 @@ export function UsersTable({
   onItemsPerPageChange
 }: UsersTableProps) {
   
-  const [pendingToggleId, setPendingToggleId] = useState<number | null>(null);
+  const [pendingToggleUser, setPendingToggleUser] = useState<Cliente | null>(null);
+  const [selectedPlanId, setSelectedPlanId] = useState<number | null>(null);
+  const { plans } = usePlans();
 
   const confirmToggle = () => {
-    if (pendingToggleId !== null) {
-      onToggleStatus(pendingToggleId);
-      setPendingToggleId(null);
+    if (pendingToggleUser !== null) {
+      const needsPlanSelection = pendingToggleUser.activo === false && !pendingToggleUser.fechaVencimiento;
+      if (needsPlanSelection && selectedPlanId) {
+        onToggleStatus(pendingToggleUser.idCliente, selectedPlanId);
+      } else {
+        onToggleStatus(pendingToggleUser.idCliente);
+      }
+      setPendingToggleUser(null);
+      setSelectedPlanId(null);
     }
   };
+  
+  const isActivating = pendingToggleUser ? pendingToggleUser.activo === false : false;
+  const needsPlanSelection = pendingToggleUser ? (isActivating && !pendingToggleUser.fechaVencimiento) : false;
   const getExpirationStyle = (user: Cliente) => {
     let expiration: Date;
     if (user.fechaVencimiento) {
@@ -102,30 +114,54 @@ export function UsersTable({
   return (
     <>
       <Modal 
-        isOpen={pendingToggleId !== null} 
-        onClose={() => setPendingToggleId(null)}
-        title="Confirmar Cambio de Estado"
+        isOpen={pendingToggleUser !== null} 
+        onClose={() => { setPendingToggleUser(null); setSelectedPlanId(null); }}
+        title={needsPlanSelection ? "Seleccionar Plan de Activación" : "Confirmar Cambio de Estado"}
       >
-        <p className="text-text-muted mb-6">
-          ¿Estás seguro de que deseas cambiar el estado de este cliente? 
-          <br /><br />
-          <span className="text-text-main font-semibold">Al Activar:</span> Se renovará automáticamente su última membresía por 30 días.
-          <br />
-          <span className="text-text-main font-semibold">Al Desactivar:</span> Su membresía actual será marcada como VENCIDA.
-        </p>
+        {needsPlanSelection ? (
+          <div className="mb-6">
+            <p className="text-text-muted mb-4">
+              Este cliente no tiene una membresía previa. Para activarlo, debes asignarle un plan:
+            </p>
+            <div className="grid gap-3">
+              {plans.map(plan => (
+                <div 
+                  key={plan.idPlan}
+                  onClick={() => setSelectedPlanId(plan.idPlan)}
+                  className={`p-3 rounded-md border cursor-pointer transition-colors ${selectedPlanId === plan.idPlan ? 'border-primary bg-primary/10' : 'border-[#2A3F36] hover:border-primary/50'}`}
+                >
+                  <div className="flex justify-between items-center mb-1">
+                    <span className="font-medium text-text-main">{plan.nombrePlan}</span>
+                    <span className="text-primary font-bold">S/{plan.precio}</span>
+                  </div>
+                  <p className="text-xs text-text-muted">{plan.descripcion} ({plan.duracionMeses} mes{plan.duracionMeses > 1 ? 'es' : ''})</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <p className="text-text-muted mb-6">
+            ¿Estás seguro de que deseas cambiar el estado de este cliente? 
+            <br /><br />
+            <span className="text-text-main font-semibold">Al Activar:</span> Se renovará automáticamente su última membresía por su duración correspondiente.
+            <br />
+            <span className="text-text-main font-semibold">Al Desactivar:</span> Su membresía actual será marcada como VENCIDA.
+          </p>
+        )}
         <div className="flex justify-end gap-3 mt-4">
           <Button 
             variant="secondary" 
-            onClick={() => setPendingToggleId(null)}
+            onClick={() => { setPendingToggleUser(null); setSelectedPlanId(null); }}
             className="bg-[#1A1A1A] border-[#2A3F36] text-text-main hover:bg-[#2A3F36]"
           >
             Cancelar
           </Button>
           <Button 
             onClick={confirmToggle}
-            className="bg-primary text-[#121212] hover:bg-[#a6d600]"
+            disabled={needsPlanSelection && !selectedPlanId}
+            className="bg-primary text-[#121212] hover:bg-[#a6d600] disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Confirmar
+            {needsPlanSelection ? "Asignar y Activar" : "Confirmar"}
           </Button>
         </div>
       </Modal>
@@ -166,7 +202,7 @@ export function UsersTable({
                     <div className="flex items-center gap-3">
                       {/* Toggle Switch */}
                       <button
-                        onClick={() => setPendingToggleId(user.idCliente)}
+                        onClick={() => setPendingToggleUser(user)}
                         className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${!isInactive ? 'bg-primary' : 'bg-[#2A3F36]'}`}
                       >
                         <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${!isInactive ? 'translate-x-[18px]' : 'translate-x-[2px]'}`} />

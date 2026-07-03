@@ -65,12 +65,16 @@ export function useUsers() {
     await fetchUsers();
   };
 
-  const toggleUserStatus = async (id: number) => {
+  const toggleUserStatus = async (id: number, planId?: number) => {
     // Optimistic update locally
     setUsers(prev => prev.map(u => u.idCliente === id ? { ...u, activo: !u.activo } : u));
     
     try {
-      const response = await fetch(`https://gymlabs-backend.onrender.com/api/clientes/${id}/toggle-estado`, {
+      const url = planId 
+        ? `https://gymlabs-backend.onrender.com/api/clientes/${id}/toggle-estado?planId=${planId}`
+        : `https://gymlabs-backend.onrender.com/api/clientes/${id}/toggle-estado`;
+
+      const response = await fetch(url, {
         method: "PATCH"
       });
 
