@@ -4,7 +4,7 @@ import { Mail, Lock, Eye, ArrowRight } from "lucide-react";
 
 export default function LoginPage() {
   return (
-    <div className="min-h-screen flex bg-[#0A0F0D] text-text-main overflow-hidden">
+    <div className="w-full flex-1 min-h-screen flex bg-[#0A0F0D] text-text-main overflow-hidden">
       {/* Left Panel: Graphic & Boldness */}
       <div className="hidden lg:flex lg:w-1/2 relative flex-col justify-end p-16">
         {/* Dark Gym Background Image */}
