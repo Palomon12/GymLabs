@@ -25,9 +25,9 @@ export default function RootLayout({
   return (
     <html
       lang="es"
-      className={`${hanken.variable} ${geistMono.variable} h-full antialiased dark`}
+      className={`${hanken.variable} ${geistMono.variable} h-full w-full antialiased dark`}
     >
-      <body className="min-h-full bg-background text-text-main flex flex-col">{children}</body>
+      <body className="min-h-full w-full bg-background text-text-main flex flex-col">{children}</body>
     </html>
   );
 }

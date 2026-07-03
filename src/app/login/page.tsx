@@ -4,7 +4,7 @@ import { Mail, Lock, Eye, ArrowRight } from "lucide-react";
 
 export default function LoginPage() {
   return (
-    <div className="w-full flex-1 min-h-screen flex bg-[#0A0F0D] text-text-main overflow-hidden">
+    <div className="w-full min-h-screen flex bg-[#0A0F0D] text-text-main overflow-x-hidden">
       {/* Left Panel: Graphic & Boldness */}
       <div className="hidden lg:flex lg:w-1/2 relative flex-col justify-end p-16">
         {/* Dark Gym Background Image */}
@@ -21,29 +21,29 @@ export default function LoginPage() {
         <div className="absolute inset-0 z-10 bg-primary/10 mix-blend-overlay" />
         
         {/* Text Content */}
-        <div className="relative z-20 max-w-xl">
-          <div className="inline-flex items-center gap-3 mb-6">
-            <div className="w-12 h-1 bg-primary" />
-            <span className="text-primary font-mono tracking-[0.2em] text-sm font-bold uppercase">Josué 1:9</span>
+        <div className="relative z-20 max-w-2xl">
+          <div className="inline-flex items-center gap-4 mb-8">
+            <div className="w-16 h-1 bg-primary" />
+            <span className="text-primary font-mono tracking-[0.3em] text-sm font-bold uppercase">Josué 1:9</span>
           </div>
-          <h1 className="text-6xl xl:text-7xl font-bold tracking-tighter leading-[0.9] text-white mb-6 uppercase">
-            Esfuérzate <br /> 
-            <span className="text-text-muted">y sé</span> <br /> 
-            Valiente
+          <h1 className="text-5xl md:text-6xl xl:text-[5.5rem] font-bold tracking-tighter leading-[1] text-white mb-8 uppercase">
+            Esfuérzate <br className="hidden md:block" />
+            <span className="text-text-muted">y sé</span> <span className="text-primary">Valiente</span>
           </h1>
-          <p className="text-text-muted font-mono text-sm leading-relaxed border-l border-primary/30 pl-4">
-            No temas ni desmayes, porque el Señor tu Dios <br className="hidden xl:block" />
-            estará contigo en dondequiera que vayas.
-          </p>
+          <div className="border-l-2 border-primary/50 pl-6 py-1 max-w-lg">
+            <p className="text-text-muted font-mono text-sm leading-relaxed">
+              No temas ni desmayes, porque el Señor tu Dios estará contigo en dondequiera que vayas.
+            </p>
+          </div>
         </div>
       </div>
 
       {/* Right Panel: Precision Form */}
       <div className="w-full lg:w-1/2 flex items-center justify-center p-8 sm:p-12 lg:p-24 bg-surface relative">
         <div className="w-full max-w-md">
-          <div className="mb-12">
-            <h2 className="text-3xl font-bold tracking-tight text-white mb-2">Acceso al Sistema</h2>
-            <p className="text-text-muted font-mono text-sm">Autenticación requerida para administradores.</p>
+          <div className="mb-14">
+            <h2 className="text-4xl font-bold tracking-tight text-white mb-3">Acceso al Sistema</h2>
+            <p className="text-text-muted font-mono text-sm leading-relaxed">Autenticación requerida para administradores.</p>
           </div>
 
           <form className="space-y-8">
