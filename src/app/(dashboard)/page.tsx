@@ -28,8 +28,8 @@ export default function UsersPage() {
 
   useEffect(() => {
     // page - 1 because Spring Boot pagination is 0-indexed
-    fetchUsers(currentPage - 1, itemsPerPage);
-  }, [fetchUsers, currentPage, itemsPerPage]);
+    fetchUsers(currentPage - 1, itemsPerPage, searchTerm, filterStatus);
+  }, [fetchUsers, currentPage, itemsPerPage, searchTerm, filterStatus]);
 
   // Handlers for Form
   const handleOpenNew = () => {
@@ -58,6 +58,7 @@ export default function UsersPage() {
       empresa: { idEmpresa: 1 } // Hardcoded temporalmente
     };
     await saveUser(payload, editingId, planId ? Number(planId) : undefined);
+    fetchUsers(currentPage - 1, itemsPerPage, searchTerm, filterStatus);
   };
 
   // Handlers for Delete
@@ -73,6 +74,7 @@ export default function UsersPage() {
       await deleteUser(userToDelete);
       setIsDeleteModalOpen(false);
       setUserToDelete(null);
+      fetchUsers(currentPage - 1, itemsPerPage, searchTerm, filterStatus);
     } catch (error) {
       alert(error);
     } finally {

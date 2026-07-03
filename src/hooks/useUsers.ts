@@ -8,10 +8,16 @@ export function useUsers() {
   const [totalPages, setTotalPages] = useState(0);
   const [totalElements, setTotalElements] = useState(0);
 
-  const fetchUsers = useCallback(async (page: number = 0, size: number = 10) => {
+  const fetchUsers = useCallback(async (page: number = 0, size: number = 10, searchTerm: string = "", filterStatus: string = "ALL") => {
     setLoading(true);
     try {
-      const res = await fetch(`${API_BASE_URL}/clientes?page=${page}&size=${size}`);
+      const url = new URL(`${API_BASE_URL}/clientes`);
+      url.searchParams.append("page", page.toString());
+      url.searchParams.append("size", size.toString());
+      if (searchTerm) url.searchParams.append("searchTerm", searchTerm);
+      url.searchParams.append("filterStatus", filterStatus);
+
+      const res = await fetch(url.toString());
       const data = await res.json();
       
       if (Array.isArray(data)) {
@@ -53,8 +59,8 @@ export function useUsers() {
       throw new Error(errorText);
     }
     
-    // Si sale bien, recargamos la lista
-    await fetchUsers();
+    // Si sale bien, no recargamos la lista aquí directamente sin los filtros, 
+    // preferible que el componente padre vuelva a llamar a fetchUsers o retornamos success.
   };
 
   const deleteUser = async (id: number) => {
@@ -66,8 +72,7 @@ export function useUsers() {
       throw new Error("Error al eliminar el cliente.");
     }
 
-    // Si sale bien, recargamos la lista
-    await fetchUsers();
+    // Si sale bien, que el componente padre recargue
   };
 
   const toggleUserStatus = async (id: number, planId?: number) => {
