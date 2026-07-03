@@ -8,6 +8,7 @@ import { UsersTable } from "@/components/users/UsersTable";
 import { UserFormModal } from "@/components/users/UserFormModal";
 import { UserDeleteModal } from "@/components/users/UserDeleteModal";
 import { Cliente } from "@/types/cliente";
+import { DEFAULT_EMPRESA_ID } from "@/config/constants";
 
 export default function UsersPage() {
   const { users, loading, totalPages, totalElements, fetchUsers, saveUser, deleteUser, toggleUserStatus } = useUsers();
@@ -19,7 +20,7 @@ export default function UsersPage() {
   
   // Modal states
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingData, setEditingData] = useState<any>(null);
+  const [editingData, setEditingData] = useState<Partial<Cliente> | null>(null);
   const [editingId, setEditingId] = useState<number | null>(null);
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -51,11 +52,11 @@ export default function UsersPage() {
     setIsModalOpen(true);
   };
 
-  const handleSave = async (formData: any) => {
+  const handleSave = async (formData: Partial<Cliente> & { planId?: string }) => {
     const { planId, ...rest } = formData;
     const payload = {
       ...rest,
-      empresa: { idEmpresa: 1 } // Hardcoded temporalmente
+      empresa: { idEmpresa: DEFAULT_EMPRESA_ID }
     };
     await saveUser(payload, editingId, planId ? Number(planId) : undefined);
     fetchUsers(currentPage - 1, itemsPerPage, searchTerm, filterStatus);

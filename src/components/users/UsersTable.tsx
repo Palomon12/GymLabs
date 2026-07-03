@@ -31,13 +31,13 @@ const getExpirationStyle = (user: Cliente) => {
   
   let className = "";
   if (diffDays > 15) {
-    className = "text-[#c3f400]"; // Verde de la marca
+    className = "text-primary font-medium"; // Verde brillante (del tema)
   } else if (diffDays > 5 && diffDays <= 15) {
-    className = "text-orange-500"; // Naranja
+    className = "text-yellow-500 font-medium"; // Naranja/Amarillo de advertencia
   } else if (diffDays > 3 && diffDays <= 5) {
-    className = "text-red-500 font-bold"; // Rojo vivo
+    className = "text-alert font-bold"; // Rojo del tema
   } else {
-    className = "text-red-900/70 font-bold"; // Rojo muy opaco
+    className = "text-alert/70 font-bold"; // Rojo opaco
   }
 
   let text = "";
@@ -240,15 +240,22 @@ export function UsersTable({
       <div className="p-4 border-t border-border flex items-center justify-between">
         <div className="flex items-center gap-2 text-sm text-text-muted">
           <span>Mostrando</span>
-          <select 
-            value={itemsPerPage} 
-            onChange={(e) => onItemsPerPageChange(Number(e.target.value))}
-            className="h-8 rounded-md border border-border bg-sidebar px-2 text-text-main focus:outline-none focus:ring-1 focus:ring-primary"
-          >
-            <option value={10}>10</option>
-            <option value={30}>30</option>
-            <option value={50}>50</option>
-          </select>
+          <div className="relative">
+            <select 
+              value={itemsPerPage} 
+              onChange={(e) => onItemsPerPageChange(Number(e.target.value))}
+              className="h-8 rounded-md border border-[#222222] bg-[#111111] px-3 pr-8 text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary appearance-none cursor-pointer hover:border-[#333333] transition-colors"
+            >
+              <option value={10}>10</option>
+              <option value={30}>30</option>
+              <option value={50}>50</option>
+            </select>
+            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-text-muted">
+              <svg className="h-3 w-3 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
+              </svg>
+            </div>
+          </div>
           <span>de {serverTotalElements} usuarios</span>
         </div>
         <div className="flex gap-2">

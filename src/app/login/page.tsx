@@ -1,103 +1,185 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
-import { Mail, Lock, Eye, ArrowRight } from "lucide-react";
+import { User, Lock, Eye, EyeOff, ArrowRight, Activity, Loader2 } from "lucide-react";
+
+// Esquema de validación Zod
+const loginSchema = z.object({
+  username: z.string().min(3, "El usuario debe tener al menos 3 caracteres"),
+  password: z.string().min(1, "La contraseña es requerida"),
+});
+
+type LoginFormValues = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
+  const router = useRouter();
+  const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginFormValues>({
+    resolver: zodResolver(loginSchema),
+  });
+
+  const onSubmit = async (data: LoginFormValues) => {
+    setIsLoading(true);
+    // Simular llamada a la API (retraso de 1.5 segundos)
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+    
+    // Aquí iría el fetch real a tu Spring Boot (ej. /api/auth/login)
+    console.log("Credenciales validadas:", data);
+    
+    // Redirección al panel
+    router.push("/dashboard");
+  };
+
   return (
-    <div className="grid min-h-screen w-full lg:grid-cols-2 bg-[#0A0F0D] text-text-main overflow-hidden">
-      {/* Left Panel: Graphic & Boldness */}
-      <div className="hidden lg:flex relative flex-col justify-end p-16">
-        {/* Dark Gym Background Image */}
+    <div className="grid h-screen w-full lg:grid-cols-2 bg-background text-text-main overflow-hidden font-sans">
+      
+      {/* Left Panel: Bold Brand Presence */}
+      <div className="hidden lg:flex relative flex-col justify-between p-12 xl:p-24 overflow-hidden group">
         <div 
-          className="absolute inset-0 z-0"
+          className="absolute inset-0 z-0 bg-cover bg-center transition-transform duration-[20s] group-hover:scale-110"
           style={{
             backgroundImage: "url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=1470&auto=format&fit=crop')",
-            backgroundSize: "cover",
-            backgroundPosition: "center",
           }}
         />
-        {/* Overlay Gradients */}
-        <div className="absolute inset-0 z-10 bg-gradient-to-t from-[#0F1A15] via-[#0F1A15]/80 to-transparent" />
-        <div className="absolute inset-0 z-10 bg-primary/10 mix-blend-overlay" />
+        <div className="absolute inset-0 z-10 bg-[#0A0F0D]/90" />
+        <div className="absolute inset-0 z-10 bg-gradient-to-tr from-primary/10 to-transparent mix-blend-overlay" />
         
-        {/* Text Content */}
-        <div className="relative z-20 max-w-2xl">
-          <div className="inline-flex items-center gap-4 mb-8">
-            <div className="w-16 h-1 bg-primary" />
-            <span className="text-primary font-mono tracking-[0.3em] text-sm font-bold uppercase">Josué 1:9</span>
+        <div className="relative z-20 flex items-center gap-3">
+          <div className="w-10 h-10 bg-primary text-[#0A0F0D] flex items-center justify-center rounded-sm">
+            <Activity className="w-6 h-6" />
           </div>
-          <h1 className="text-5xl md:text-6xl xl:text-[5.5rem] font-bold tracking-tighter leading-[1] text-white mb-8 uppercase">
-            Esfuérzate <br className="hidden md:block" />
-            <span className="text-text-muted">y sé</span> <span className="text-primary">Valiente</span>
+          <span className="font-bold tracking-widest text-lg uppercase text-white">GYMLABS</span>
+        </div>
+
+        <div className="relative z-20 w-[90%] max-w-[600px]">
+          <div className="mb-8">
+            <div className="inline-flex items-center gap-4 bg-[#16241F]/80 backdrop-blur-sm border border-primary/20 px-4 py-2 rounded-full">
+              <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+              <span className="text-primary font-mono tracking-[0.2em] text-xs font-bold uppercase">Josué 1:9</span>
+            </div>
+          </div>
+          
+          <h1 className="text-5xl md:text-6xl xl:text-7xl font-bold tracking-tighter leading-[1.05] text-white mb-8 uppercase">
+            Esfuérzate y sé <span className="text-primary">Valiente</span>
           </h1>
-          <div className="border-l-2 border-primary/50 pl-6 py-1 max-w-lg">
-            <p className="text-text-muted font-mono text-sm leading-relaxed">
+          
+          <div className="border-l-4 border-primary pl-6 py-2 bg-gradient-to-r from-primary/5 to-transparent">
+            <p className="text-text-muted font-mono text-sm leading-relaxed max-w-[450px]">
               No temas ni desmayes, porque el Señor tu Dios estará contigo en dondequiera que vayas.
             </p>
           </div>
         </div>
       </div>
 
-      {/* Right Panel: Precision Form */}
-      <div className="flex w-full items-center justify-center p-8 sm:p-12 lg:p-24 bg-surface relative">
-        <div className="w-full max-w-md mx-auto">
-          <div className="mb-14">
-            <h2 className="text-4xl font-bold tracking-tight text-white mb-3">Acceso al Sistema</h2>
-            <p className="text-text-muted font-mono text-sm leading-relaxed">Autenticación requerida para administradores.</p>
+      {/* Right Panel: Functional Form */}
+      <div className="flex w-full flex-col justify-center items-center p-8 sm:p-12 lg:p-24 bg-surface relative z-10 shadow-[-20px_0_40px_rgba(0,0,0,0.5)]">
+        
+        <div className="w-full max-w-[440px] flex flex-col justify-center h-full">
+          
+          <div className="mb-16">
+            <h2 className="text-4xl font-bold tracking-tight text-white mb-4">Acceso Autorizado</h2>
+            <p className="text-text-muted font-mono text-sm leading-relaxed">
+              Consola de administración operativa. Ingrese sus credenciales para continuar.
+            </p>
           </div>
 
-          <form className="space-y-8">
-            <div className="space-y-3 group">
-              <label className="text-xs font-semibold text-text-muted tracking-widest uppercase font-mono group-focus-within:text-primary transition-colors">
-                Correo Electrónico
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+            
+            {/* Username Field */}
+            <div className="space-y-4 group">
+              <label className="text-xs font-bold text-text-muted tracking-widest uppercase font-mono group-focus-within:text-primary transition-colors flex items-center gap-2">
+                <User className="w-4 h-4" /> Usuario
               </label>
               <div className="relative">
-                <div className="absolute left-0 top-1/2 -translate-y-1/2 text-text-muted group-focus-within:text-primary transition-colors">
-                  <Mail className="w-5 h-5" />
-                </div>
                 <input 
-                  type="email"
-                  placeholder="admin@gimnasio.com" 
-                  className="w-full bg-transparent border-b-2 border-border focus:border-primary outline-none py-2 pl-10 pr-4 text-white font-mono placeholder:text-text-muted/50 transition-colors"
+                  type="text"
+                  placeholder="admin"
+                  {...register("username")}
+                  disabled={isLoading}
+                  className={`w-full bg-[#0A0F0D] border ${errors.username ? 'border-alert' : 'border-border'} focus:border-primary focus:ring-1 focus:ring-primary/50 outline-none px-5 py-4 text-white font-mono placeholder:text-text-muted/30 transition-all rounded-md`}
                 />
               </div>
+              {errors.username && (
+                <p className="text-alert text-xs font-mono mt-2">{errors.username.message}</p>
+              )}
             </div>
 
-            <div className="space-y-3 group">
+            {/* Password Field */}
+            <div className="space-y-4 group">
               <div className="flex justify-between items-center">
-                <label className="text-xs font-semibold text-text-muted tracking-widest uppercase font-mono group-focus-within:text-primary transition-colors">
-                  Contraseña
+                <label className="text-xs font-bold text-text-muted tracking-widest uppercase font-mono group-focus-within:text-primary transition-colors flex items-center gap-2">
+                  <Lock className="w-4 h-4" /> Contraseña
                 </label>
               </div>
               <div className="relative">
-                <div className="absolute left-0 top-1/2 -translate-y-1/2 text-text-muted group-focus-within:text-primary transition-colors">
-                  <Lock className="w-5 h-5" />
-                </div>
                 <input 
                   type="password"
-                  placeholder="••••••••" 
-                  className="w-full bg-transparent border-b-2 border-border focus:border-primary outline-none py-2 pl-10 pr-10 text-white font-mono placeholder:text-text-muted/50 transition-colors"
+                  placeholder="••••••••"
+                  {...register("password")}
+                  disabled={isLoading}
+                  className={`w-full bg-[#0A0F0D] border ${errors.password ? 'border-alert' : 'border-border'} focus:border-primary focus:ring-1 focus:ring-primary/50 outline-none px-5 py-4 pr-12 text-white font-mono placeholder:text-text-muted/30 transition-all rounded-md`}
+                  onFocus={(e) => e.target.type = showPassword ? "text" : "password"}
+                  onBlur={(e) => e.target.type = showPassword ? "text" : "password"}
+                  onChange={(e) => {
+                    register("password").onChange(e);
+                    e.target.type = showPassword ? "text" : "password";
+                  }}
+                  id="password-input"
                 />
-                <button type="button" className="absolute right-0 top-1/2 -translate-y-1/2 text-text-muted hover:text-white transition-colors">
-                  <Eye className="w-4 h-4" />
+                <button 
+                  type="button" 
+                  onClick={() => {
+                    setShowPassword(!showPassword);
+                    const input = document.getElementById('password-input') as HTMLInputElement;
+                    if (input) input.type = !showPassword ? "text" : "password";
+                  }}
+                  disabled={isLoading}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-text-muted hover:text-white transition-colors"
+                >
+                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
+              {errors.password && (
+                <p className="text-alert text-xs font-mono mt-2">{errors.password.message}</p>
+              )}
             </div>
 
-            <div className="pt-4">
-              <Link href="/" className="w-full block">
-                <Button type="button" className="w-full h-14 bg-primary text-[#0F1A15] hover:bg-primary-hover font-bold text-sm tracking-wider flex items-center justify-between px-6 rounded-none group transition-all">
-                  <span>AUTORIZAR ACCESO</span>
-                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                </Button>
-              </Link>
+            {/* Submit Button */}
+            <div className="pt-8">
+              <Button 
+                type="submit" 
+                disabled={isLoading}
+                className="w-full h-16 bg-primary text-[#0A0F0D] hover:bg-primary-hover disabled:bg-primary/50 disabled:cursor-not-allowed font-bold text-sm tracking-[0.2em] uppercase flex items-center justify-center gap-4 rounded-md group transition-all"
+              >
+                {isLoading ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : (
+                  <>
+                    <span>Ingresar al Panel</span>
+                    <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform" />
+                  </>
+                )}
+              </Button>
             </div>
           </form>
 
-          <div className="mt-16 pt-8 border-t border-border flex justify-between items-center text-xs font-mono text-text-muted">
+          {/* Footer */}
+          <div className="mt-auto pt-16 border-t border-border/50 flex justify-between items-center text-xs font-mono text-text-muted">
             <span>GYMLABS © 2026</span>
-            <a href="#" className="hover:text-primary transition-colors">Soporte Técnico</a>
+            <a href="#" className="hover:text-primary transition-colors">Centro de Soporte</a>
           </div>
+          
         </div>
       </div>
     </div>

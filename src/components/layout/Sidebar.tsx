@@ -26,16 +26,13 @@ export function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="w-[260px] bg-sidebar border-r border-border h-full flex flex-col fixed left-0 top-0">
-      <div className="p-6">
-        <div className="flex items-center gap-3 mb-10">
-          <div className="w-10 h-10 bg-surface rounded-md flex items-center justify-center border border-border overflow-hidden">
-             {/* Dummy Avatar/Logo */}
-             <div className="w-full h-full bg-[url('https://i.pravatar.cc/150?img=11')] bg-cover bg-center" />
-          </div>
+    <aside className="w-[260px] bg-black border-r border-[#111111] h-full flex flex-col fixed left-0 top-0 z-50">
+      <div className="p-8">
+        {/* Typographic Logo */}
+        <div className="flex items-center gap-3 mb-12">
           <div>
-            <h1 className="text-primary font-bold tracking-wider text-xl leading-none">GYMLABS</h1>
-            <p className="text-text-muted text-xs mt-1">Admin Console</p>
+            <h1 className="text-white font-bold tracking-widest text-xl leading-none uppercase">GYMLABS</h1>
+            <p className="text-primary font-mono text-[10px] mt-1 tracking-widest uppercase opacity-80">Software</p>
           </div>
         </div>
 
@@ -47,16 +44,16 @@ export function Sidebar() {
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "flex items-center gap-4 px-4 py-3 rounded-sm text-sm font-medium transition-colors relative",
+                  "flex items-center gap-4 px-4 py-3 rounded-lg text-sm font-semibold transition-all relative overflow-hidden group",
                   isActiveStrict
-                    ? "bg-surface text-primary"
-                    : "text-text-muted hover:text-text-main hover:bg-surface/50"
+                    ? "text-[#0A0F0D] bg-primary shadow-[0_0_15px_rgba(195,244,0,0.2)]"
+                    : "text-text-muted hover:text-white hover:bg-[#111111]"
                 )}
               >
                 {isActiveStrict && (
-                  <span className="absolute left-0 top-0 bottom-0 w-[2px] bg-primary" />
+                  <span className="absolute inset-0 bg-white/20 mix-blend-overlay" />
                 )}
-                <item.icon className="w-5 h-5" />
+                <item.icon className={cn("w-5 h-5", isActiveStrict ? "text-[#0A0F0D]" : "group-hover:text-primary transition-colors")} />
                 {item.label}
               </Link>
             );
@@ -64,19 +61,19 @@ export function Sidebar() {
         </nav>
       </div>
 
-      <div className="mt-auto p-6 border-t border-border flex flex-col gap-2">
+      <div className="mt-auto p-6 border-t border-[#111111] flex flex-col gap-2">
         <Link
           href="/ajustes"
-          className="flex items-center gap-4 px-4 py-3 rounded-sm text-sm font-medium text-text-muted hover:text-text-main hover:bg-surface/50 transition-colors"
+          className="flex items-center gap-4 px-4 py-3 rounded-lg text-sm font-semibold text-text-muted hover:text-white hover:bg-[#111111] transition-all group"
         >
-          <Settings className="w-5 h-5" />
+          <Settings className="w-5 h-5 group-hover:rotate-90 transition-transform duration-500" />
           Ajustes
         </Link>
         <Link
           href="/login"
-          className="flex items-center gap-4 px-4 py-3 rounded-sm text-sm font-medium text-alert hover:text-alert/80 hover:bg-alert/10 transition-colors mt-2"
+          className="flex items-center gap-4 px-4 py-3 rounded-lg text-sm font-semibold text-alert hover:text-white hover:bg-alert/20 transition-all group mt-2"
         >
-          <LogOut className="w-5 h-5" />
+          <LogOut className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
           Cerrar Sesión
         </Link>
       </div>

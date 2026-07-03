@@ -1,8 +1,23 @@
 import { Modal } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { usePlans } from "@/hooks/usePlans";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+
+const userSchema = z.object({
+  nombre: z.string().min(1, "El nombre es requerido."),
+  apellido: z.string().min(1, "El apellido es requerido."),
+  dni: z.string().regex(/^\d{8}$/, "El DNI debe tener 8 dígitos numéricos."),
+  telefono: z.string().regex(/^\d{9,15}$/, "Ingresa un teléfono válido.").optional().or(z.literal("")),
+  correo: z.string().email("Correo electrónico inválido.").optional().or(z.literal("")),
+  direccion: z.string().optional().or(z.literal("")),
+  planId: z.string().optional(),
+});
+
+type UserFormValues = z.infer<typeof userSchema>;
 
 interface UserFormModalProps {
   isOpen: boolean;
@@ -13,68 +28,58 @@ interface UserFormModalProps {
 }
 
 export function UserFormModal({ isOpen, onClose, onSubmit, initialData, isEditing }: UserFormModalProps) {
-  const [formData, setFormData] = useState({
-    nombre: "", apellido: "", dni: "", telefono: "", correo: "", direccion: "", planId: ""
-  });
-  const [errors, setErrors] = useState<{ [key: string]: string }>({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const { plans } = usePlans();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    setError,
+    formState: { errors }
+  } = useForm<UserFormValues>({
+    resolver: zodResolver(userSchema),
+    defaultValues: {
+      nombre: "",
+      apellido: "",
+      dni: "",
+      telefono: "",
+      correo: "",
+      direccion: "",
+      planId: ""
+    }
+  });
 
   useEffect(() => {
     if (isOpen) {
       if (initialData) {
-        setFormData({ ...initialData, planId: "" });
+        reset({ 
+          nombre: initialData.nombre || "",
+          apellido: initialData.apellido || "",
+          dni: initialData.dni || "",
+          telefono: initialData.telefono || "",
+          correo: initialData.correo || "",
+          direccion: initialData.direccion || "",
+          planId: ""
+        });
       } else {
-        setFormData({ nombre: "", apellido: "", dni: "", telefono: "", correo: "", direccion: "", planId: "" });
+        reset({ nombre: "", apellido: "", dni: "", telefono: "", correo: "", direccion: "", planId: "" });
       }
-      setErrors({});
     }
-  }, [isOpen, initialData]);
+  }, [isOpen, initialData, reset]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-    if (errors[name]) {
-      setErrors(prev => ({ ...prev, [name]: "" }));
+  const onFormSubmit = async (data: UserFormValues) => {
+    if (!isEditing && !data.planId) {
+      setError("planId", { type: "manual", message: "Selecciona un plan." });
+      return;
     }
-  };
-
-  const validate = () => {
-    const newErrors: { [key: string]: string } = {};
-    if (!formData.nombre.trim()) newErrors.nombre = "El nombre es requerido.";
-    if (!formData.apellido.trim()) newErrors.apellido = "El apellido es requerido.";
     
-    if (!formData.dni.trim()) {
-      newErrors.dni = "El DNI es requerido.";
-    } else if (!/^\d{8}$/.test(formData.dni.trim())) {
-      newErrors.dni = "El DNI debe tener exactamente 8 dígitos numéricos.";
-    }
-
-    if (formData.correo && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.correo)) {
-      newErrors.correo = "Ingresa un correo electrónico válido.";
-    }
-
-    if (formData.telefono && !/^\d{9,15}$/.test(formData.telefono.replace(/\s+/g, ''))) {
-      newErrors.telefono = "Ingresa un número de teléfono válido (9+ dígitos).";
-    }
-
-    if (!isEditing && !formData.planId) {
-      newErrors.planId = "Debes seleccionar un plan inicial.";
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!validate()) return;
     setIsSubmitting(true);
     try {
-      await onSubmit(formData);
-      onClose(); // Cerrar modal al guardar exitosamente
+      await onSubmit(data);
+      onClose();
     } catch (error: any) {
-       alert(error.message || "Error al procesar la solicitud.");
+      alert(error.message || "Error al procesar la solicitud.");
     } finally {
       setIsSubmitting(false);
     }
@@ -82,70 +87,80 @@ export function UserFormModal({ isOpen, onClose, onSubmit, initialData, isEditin
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={isEditing ? "Editar Miembro" : "Registrar Nuevo Miembro"}>
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-4">
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
             <label className="text-xs font-semibold text-text-muted tracking-widest uppercase font-mono">Nombre</label>
-            <Input name="nombre" value={formData.nombre} onChange={handleInputChange} placeholder="Ej. Carlos" />
-            {errors.nombre && <p className="text-red-500 text-xs mt-1">{errors.nombre}</p>}
+            <Input {...register("nombre")} placeholder="Ej. Carlos" />
+            {errors.nombre && <p className="text-alert text-xs mt-1">{errors.nombre.message}</p>}
           </div>
           <div className="space-y-2">
             <label className="text-xs font-semibold text-text-muted tracking-widest uppercase font-mono">Apellido</label>
-            <Input name="apellido" value={formData.apellido} onChange={handleInputChange} placeholder="Ej. Mendoza" />
-            {errors.apellido && <p className="text-red-500 text-xs mt-1">{errors.apellido}</p>}
+            <Input {...register("apellido")} placeholder="Ej. Mendoza" />
+            {errors.apellido && <p className="text-alert text-xs mt-1">{errors.apellido.message}</p>}
           </div>
         </div>
         
         <div className="space-y-2">
           <label className="text-xs font-semibold text-text-muted tracking-widest uppercase font-mono">DNI</label>
-          <Input name="dni" value={formData.dni} onChange={handleInputChange} placeholder="Ej. 45283910" />
-          {errors.dni && <p className="text-red-500 text-xs mt-1">{errors.dni}</p>}
+          <Input {...register("dni")} placeholder="Ej. 45283910" />
+          {errors.dni && <p className="text-alert text-xs mt-1">{errors.dni.message}</p>}
         </div>
         
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
             <label className="text-xs font-semibold text-text-muted tracking-widest uppercase font-mono">Teléfono</label>
-            <Input name="telefono" value={formData.telefono} onChange={handleInputChange} placeholder="Opcional" />
-            {errors.telefono && <p className="text-red-500 text-xs mt-1">{errors.telefono}</p>}
+            <Input {...register("telefono")} placeholder="Opcional" />
+            {errors.telefono && <p className="text-alert text-xs mt-1">{errors.telefono.message}</p>}
           </div>
           <div className="space-y-2">
             <label className="text-xs font-semibold text-text-muted tracking-widest uppercase font-mono">Correo Electrónico</label>
-            <Input name="correo" type="email" value={formData.correo} onChange={handleInputChange} placeholder="ejemplo@correo.com" />
-            {errors.correo && <p className="text-red-500 text-xs mt-1">{errors.correo}</p>}
+            <Input type="email" {...register("correo")} placeholder="ejemplo@correo.com" />
+            {errors.correo && <p className="text-alert text-xs mt-1">{errors.correo.message}</p>}
           </div>
         </div>
 
         <div className="space-y-2">
           <label className="text-xs font-semibold text-text-muted tracking-widest uppercase font-mono">Dirección</label>
-          <Input name="direccion" value={formData.direccion} onChange={handleInputChange} placeholder="Opcional" />
+          <Input {...register("direccion")} placeholder="Opcional" />
         </div>
 
         {!isEditing && (
           <div className="space-y-2">
             <label className="text-xs font-semibold text-text-muted tracking-widest uppercase font-mono">Plan Inicial</label>
-            <select 
-              name="planId" 
-              value={formData.planId} 
-              onChange={handleInputChange}
-              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              <option value="" disabled>Selecciona un plan...</option>
-              {plans.map(plan => (
-                <option key={plan.idPlan} value={plan.idPlan}>
-                  {plan.nombrePlan} - S/{plan.precio} ({plan.duracionMeses} mes{plan.duracionMeses > 1 ? 'es' : ''})
-                </option>
-              ))}
-            </select>
-            {errors.planId && <p className="text-red-500 text-xs mt-1">{errors.planId}</p>}
+            <div className="relative">
+              <select 
+                {...register("planId")}
+                className="flex h-11 w-full rounded-md border border-[#222222] bg-[#111111] px-3 py-2 text-sm text-white focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all appearance-none cursor-pointer hover:border-[#333333]"
+              >
+                <option value="" disabled className="bg-[#111111] text-text-muted">Selecciona un plan...</option>
+                {plans.map(plan => (
+                  <option key={plan.idPlan} value={plan.idPlan} className="bg-[#111111] text-white py-2">
+                    {plan.nombrePlan} - S/{plan.precio} ({plan.duracionMeses} mes{plan.duracionMeses > 1 ? 'es' : ''})
+                  </option>
+                ))}
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-text-muted">
+                <svg className="h-4 w-4 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                  <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
+                </svg>
+              </div>
+            </div>
+            {errors.planId && <p className="text-alert text-xs mt-1">{errors.planId.message}</p>}
           </div>
         )}
 
-        <div className="pt-4 flex justify-end gap-3">
-          <Button type="button" variant="ghost" onClick={onClose} disabled={isSubmitting}>
+        <div className="pt-6 flex justify-end gap-3 border-t border-[#222222] mt-6">
+          <Button type="button" variant="ghost" onClick={onClose} disabled={isSubmitting} className="hover:bg-[#111111] hover:text-white">
             Cancelar
           </Button>
-          <Button type="submit" variant="primary" disabled={isSubmitting}>
-            {isSubmitting ? "Guardando..." : "Guardar Miembro"}
+          <Button type="submit" variant="primary" disabled={isSubmitting} className="min-w-[140px]">
+            {isSubmitting ? (
+              <span className="flex items-center gap-2">
+                <div className="w-4 h-4 border-2 border-[#121212] border-t-transparent rounded-full animate-spin" />
+                Procesando...
+              </span>
+            ) : "Guardar Miembro"}
           </Button>
         </div>
       </form>
