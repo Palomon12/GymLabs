@@ -11,6 +11,7 @@ import {
   BellRing,
   Settings,
   Plus,
+  LogOut,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -63,13 +64,20 @@ export function Sidebar() {
         </nav>
       </div>
 
-      <div className="mt-auto p-6 border-t border-border">
+      <div className="mt-auto p-6 border-t border-border flex flex-col gap-2">
         <Link
           href="/ajustes"
           className="flex items-center gap-4 px-4 py-3 rounded-sm text-sm font-medium text-text-muted hover:text-text-main hover:bg-surface/50 transition-colors"
         >
           <Settings className="w-5 h-5" />
           Ajustes
+        </Link>
+        <Link
+          href="/login"
+          className="flex items-center gap-4 px-4 py-3 rounded-sm text-sm font-medium text-alert hover:text-alert/80 hover:bg-alert/10 transition-colors mt-2"
+        >
+          <LogOut className="w-5 h-5" />
+          Cerrar Sesión
         </Link>
       </div>
     </aside>

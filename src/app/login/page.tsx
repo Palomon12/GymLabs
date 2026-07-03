@@ -1,77 +1,103 @@
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { Input } from "@/components/ui/input";
-import { Building2, Mail, Lock, Eye } from "lucide-react";
+import { Mail, Lock, Eye, ArrowRight } from "lucide-react";
 
 export default function LoginPage() {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-[#0d0d0d] relative overflow-hidden">
-      {/* Subtle background glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/5 rounded-full blur-[120px] pointer-events-none" />
-
-      <div className="w-full max-w-md bg-surface border border-border rounded-md shadow-2xl relative z-10 overflow-hidden">
-        {/* Top active border */}
-        <div className="h-1 w-full bg-primary" />
+    <div className="min-h-screen flex bg-[#0A0F0D] text-text-main overflow-hidden">
+      {/* Left Panel: Graphic & Boldness */}
+      <div className="hidden lg:flex lg:w-1/2 relative flex-col justify-end p-16">
+        {/* Dark Gym Background Image */}
+        <div 
+          className="absolute inset-0 z-0"
+          style={{
+            backgroundImage: "url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=1470&auto=format&fit=crop')",
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+          }}
+        />
+        {/* Overlay Gradients */}
+        <div className="absolute inset-0 z-10 bg-gradient-to-t from-[#0F1A15] via-[#0F1A15]/80 to-transparent" />
+        <div className="absolute inset-0 z-10 bg-primary/10 mix-blend-overlay" />
         
-        <div className="p-10 flex flex-col items-center">
-          <h1 className="text-primary font-bold tracking-wider text-4xl leading-none mb-2">GYMLABS</h1>
-          <p className="text-text-muted text-sm mb-10">Admin Console Access</p>
+        {/* Text Content */}
+        <div className="relative z-20 max-w-xl">
+          <div className="inline-flex items-center gap-3 mb-6">
+            <div className="w-12 h-1 bg-primary" />
+            <span className="text-primary font-mono tracking-[0.2em] text-sm font-bold uppercase">Josué 1:9</span>
+          </div>
+          <h1 className="text-6xl xl:text-7xl font-bold tracking-tighter leading-[0.9] text-white mb-6 uppercase">
+            Esfuérzate <br /> 
+            <span className="text-text-muted">y sé</span> <br /> 
+            Valiente
+          </h1>
+          <p className="text-text-muted font-mono text-sm leading-relaxed border-l border-primary/30 pl-4">
+            No temas ni desmayes, porque el Señor tu Dios <br className="hidden xl:block" />
+            estará contigo en dondequiera que vayas.
+          </p>
+        </div>
+      </div>
 
-          <form className="w-full space-y-6">
-            <div className="space-y-2">
-              <label className="text-xs font-semibold text-text-main tracking-widest uppercase font-mono">
-                Empresa / Gimnasio
+      {/* Right Panel: Precision Form */}
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-8 sm:p-12 lg:p-24 bg-surface relative">
+        <div className="w-full max-w-md">
+          <div className="mb-12">
+            <h2 className="text-3xl font-bold tracking-tight text-white mb-2">Acceso al Sistema</h2>
+            <p className="text-text-muted font-mono text-sm">Autenticación requerida para administradores.</p>
+          </div>
+
+          <form className="space-y-8">
+            <div className="space-y-3 group">
+              <label className="text-xs font-semibold text-text-muted tracking-widest uppercase font-mono group-focus-within:text-primary transition-colors">
+                Correo Electrónico
               </label>
-              <Input 
-                placeholder="Nombre de tu centro" 
-                icon={<Building2 className="w-4 h-4" />}
-              />
+              <div className="relative">
+                <div className="absolute left-0 top-1/2 -translate-y-1/2 text-text-muted group-focus-within:text-primary transition-colors">
+                  <Mail className="w-5 h-5" />
+                </div>
+                <input 
+                  type="email"
+                  placeholder="admin@gimnasio.com" 
+                  className="w-full bg-transparent border-b-2 border-border focus:border-primary outline-none py-2 pl-10 pr-4 text-white font-mono placeholder:text-text-muted/50 transition-colors"
+                />
+              </div>
             </div>
 
-            <div className="space-y-2">
-              <label className="text-xs font-semibold text-text-main tracking-widest uppercase font-mono">
-                Email
-              </label>
-              <Input 
-                type="email"
-                placeholder="admin@gimnasio.com" 
-                icon={<Mail className="w-4 h-4" />}
-              />
-            </div>
-
-            <div className="space-y-2">
+            <div className="space-y-3 group">
               <div className="flex justify-between items-center">
-                <label className="text-xs font-semibold text-text-main tracking-widest uppercase font-mono">
+                <label className="text-xs font-semibold text-text-muted tracking-widest uppercase font-mono group-focus-within:text-primary transition-colors">
                   Contraseña
                 </label>
-                <a href="#" className="text-xs text-primary hover:underline font-semibold">
-                  ¿Olvidaste tu contraseña?
-                </a>
               </div>
               <div className="relative">
-                <Input 
+                <div className="absolute left-0 top-1/2 -translate-y-1/2 text-text-muted group-focus-within:text-primary transition-colors">
+                  <Lock className="w-5 h-5" />
+                </div>
+                <input 
                   type="password"
                   placeholder="••••••••" 
-                  icon={<Lock className="w-4 h-4" />}
+                  className="w-full bg-transparent border-b-2 border-border focus:border-primary outline-none py-2 pl-10 pr-10 text-white font-mono placeholder:text-text-muted/50 transition-colors"
                 />
-                <button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-main">
+                <button type="button" className="absolute right-0 top-1/2 -translate-y-1/2 text-text-muted hover:text-white transition-colors">
                   <Eye className="w-4 h-4" />
                 </button>
               </div>
             </div>
 
-            <Link href="/" className="w-full block mt-4">
-              <Button type="button" className="w-full h-12 text-sm">
-                INICIAR SESIÓN →
-              </Button>
-            </Link>
+            <div className="pt-4">
+              <Link href="/" className="w-full block">
+                <Button type="button" className="w-full h-14 bg-primary text-[#0F1A15] hover:bg-primary-hover font-bold text-sm tracking-wider flex items-center justify-between px-6 rounded-none group transition-all">
+                  <span>AUTORIZAR ACCESO</span>
+                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                </Button>
+              </Link>
+            </div>
           </form>
 
-          <div className="w-full h-px bg-border my-8" />
-
-          <p className="text-xs text-text-muted">
-            ¿Necesitas ayuda? <a href="#" className="text-primary hover:underline">Soporte Técnico</a>
-          </p>
+          <div className="mt-16 pt-8 border-t border-border flex justify-between items-center text-xs font-mono text-text-muted">
+            <span>GYMLABS © 2026</span>
+            <a href="#" className="hover:text-primary transition-colors">Soporte Técnico</a>
+          </div>
         </div>
       </div>
     </div>
