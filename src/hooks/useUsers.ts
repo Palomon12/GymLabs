@@ -31,16 +31,20 @@ export function useUsers() {
     }
   }, []);
 
-  const saveUser = async (userPayload: any, editingId: number | null) => {
+  const saveUser = async (user: Partial<Cliente>, editingId: number | null, planId?: number) => {
     const isEditing = editingId !== null;
-    const url = isEditing 
+    let url = isEditing 
       ? `https://gymlabs-backend.onrender.com/api/clientes/${editingId}`
       : "https://gymlabs-backend.onrender.com/api/clientes";
+    
+    if (!isEditing && planId) {
+      url += `?planId=${planId}`;
+    }
 
     const response = await fetch(url, {
       method: isEditing ? "PUT" : "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(userPayload)
+      body: JSON.stringify(user)
     });
 
     if (!response.ok) {

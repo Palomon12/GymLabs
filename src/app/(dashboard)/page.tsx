@@ -51,11 +51,12 @@ export default function UsersPage() {
   };
 
   const handleSave = async (formData: any) => {
+    const { planId, ...rest } = formData;
     const payload = {
-      ...formData,
+      ...rest,
       empresa: { idEmpresa: 1 } // Hardcoded temporalmente
     };
-    await saveUser(payload, editingId);
+    await saveUser(payload, editingId, planId ? Number(planId) : undefined);
   };
 
   // Handlers for Delete
