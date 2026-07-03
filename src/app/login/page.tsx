@@ -4,9 +4,9 @@ import { Mail, Lock, Eye, ArrowRight } from "lucide-react";
 
 export default function LoginPage() {
   return (
-    <div className="w-full min-h-screen flex bg-[#0A0F0D] text-text-main overflow-x-hidden">
+    <div className="grid min-h-screen w-full lg:grid-cols-2 bg-[#0A0F0D] text-text-main overflow-hidden">
       {/* Left Panel: Graphic & Boldness */}
-      <div className="hidden lg:flex lg:w-1/2 relative flex-col justify-end p-16">
+      <div className="hidden lg:flex relative flex-col justify-end p-16">
         {/* Dark Gym Background Image */}
         <div 
           className="absolute inset-0 z-0"
@@ -39,8 +39,8 @@ export default function LoginPage() {
       </div>
 
       {/* Right Panel: Precision Form */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-8 sm:p-12 lg:p-24 bg-surface relative">
-        <div className="w-full max-w-md">
+      <div className="flex w-full items-center justify-center p-8 sm:p-12 lg:p-24 bg-surface relative">
+        <div className="w-full max-w-md mx-auto">
           <div className="mb-14">
             <h2 className="text-4xl font-bold tracking-tight text-white mb-3">Acceso al Sistema</h2>
             <p className="text-text-muted font-mono text-sm leading-relaxed">Autenticación requerida para administradores.</p>
