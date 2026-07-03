@@ -6,11 +6,13 @@ import { Cliente } from "@/types/cliente";
 interface UsersHeaderProps {
   searchTerm: string;
   onSearchChange: (value: string) => void;
+  filterStatus: string;
+  onFilterChange: (value: string) => void;
   onOpenNewModal: () => void;
   users: Cliente[];
 }
 
-export function UsersHeader({ searchTerm, onSearchChange, onOpenNewModal, users }: UsersHeaderProps) {
+export function UsersHeader({ searchTerm, onSearchChange, filterStatus, onFilterChange, onOpenNewModal, users }: UsersHeaderProps) {
   const exportToCSV = () => {
     if (users.length === 0) {
       alert("No hay datos para exportar.");
@@ -69,9 +71,16 @@ export function UsersHeader({ searchTerm, onSearchChange, onOpenNewModal, users 
           <Button variant="primary" className="h-10 flex-1 sm:flex-none" onClick={onOpenNewModal}>
             <Plus className="w-4 h-4 mr-2" /> Agregar Miembro
           </Button>
-          <Button variant="secondary" className="h-10 flex-1 sm:flex-none">
-            <Filter className="w-4 h-4 mr-2" /> Filtros
-          </Button>
+          <select 
+            value={filterStatus}
+            onChange={(e) => onFilterChange(e.target.value)}
+            className="h-10 rounded-md border border-input bg-background px-3 text-sm flex-1 sm:flex-none focus:outline-none focus:ring-1 focus:ring-primary"
+          >
+            <option value="ALL">Todos (Ambos)</option>
+            <option value="ACTIVE">Activos</option>
+            <option value="INACTIVE">Inactivos</option>
+            <option value="EXPIRING">Por Vencer (≤ 10 días)</option>
+          </select>
           <Button variant="secondary" className="h-10 text-primary border-primary hover:bg-primary/10 flex-1 sm:flex-none" onClick={exportToCSV}>
             <Download className="w-4 h-4 mr-2" /> Exportar
           </Button>

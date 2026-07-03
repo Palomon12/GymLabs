@@ -58,6 +58,7 @@ interface UsersTableProps {
   users: Cliente[];
   loading: boolean;
   searchTerm: string;
+  filterStatus: string;
   currentPage: number;
   itemsPerPage: number;
   serverTotalPages: number;
@@ -73,6 +74,7 @@ export function UsersTable({
   users,
   loading,
   searchTerm,
+  filterStatus,
   currentPage,
   itemsPerPage,
   serverTotalPages,
@@ -104,11 +106,41 @@ export function UsersTable({
   const isActivating = pendingToggleUser ? pendingToggleUser.activo === false : false;
   const needsPlanSelection = pendingToggleUser ? isActivating : false;
 
-  const filteredUsers = users.filter(user => 
-    user.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.apellido.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.dni.includes(searchTerm)
-  );
+  const filteredUsers = users.filter(user => {
+    // 1. Text search
+    const matchesSearch = 
+      user.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.apellido.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.dni.includes(searchTerm);
+    
+    if (!matchesSearch) return false;
+
+    // 2. Status filter
+    if (filterStatus === "ACTIVE") {
+      if (user.activo === false) return false;
+    } else if (filterStatus === "INACTIVE") {
+      if (user.activo !== false) return false;
+    } else if (filterStatus === "EXPIRING") {
+      // Calculate expiration days for this user using same logic as style
+      let expiration: Date;
+      if (user.fechaVencimiento) {
+        expiration = new Date(user.fechaVencimiento);
+      } else if (user.fechaRegistro) {
+        expiration = new Date(user.fechaRegistro);
+        expiration.setDate(expiration.getDate() + 30);
+      } else {
+        return false; // No expiration = not expiring soon
+      }
+      const today = new Date();
+      const diffTime = expiration.getTime() - today.getTime();
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      
+      // Keep if 10 days or less remaining (including expired ones which are negative)
+      if (diffDays > 10) return false;
+    }
+
+    return true;
+  });
 
   const currentUsers = filteredUsers;
 

@@ -13,6 +13,7 @@ export default function UsersPage() {
   const { users, loading, totalPages, totalElements, fetchUsers, saveUser, deleteUser, toggleUserStatus } = useUsers();
   
   const [searchTerm, setSearchTerm] = useState("");
+  const [filterStatus, setFilterStatus] = useState("ALL");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   
@@ -87,6 +88,11 @@ export default function UsersPage() {
           setSearchTerm(val);
           setCurrentPage(1);
         }}
+        filterStatus={filterStatus}
+        onFilterChange={(val) => {
+          setFilterStatus(val);
+          setCurrentPage(1);
+        }}
         onOpenNewModal={handleOpenNew}
         users={users}
       />
@@ -96,6 +102,7 @@ export default function UsersPage() {
           users={users}
           loading={loading}
           searchTerm={searchTerm}
+          filterStatus={filterStatus}
           currentPage={currentPage}
           itemsPerPage={itemsPerPage}
           serverTotalPages={totalPages}
