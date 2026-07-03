@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Users, DollarSign, Activity } from "lucide-react";
 import {
@@ -15,45 +15,14 @@ import {
   Line
 } from "recharts";
 
-interface ChartData {
-  name: string;
-  value: number;
-}
 
-interface DashboardStats {
-  totalClientes: number;
-  ingresosMes: number;
-  membresiasActivas: number;
-  graficoIngresos: ChartData[];
-  graficoNuevosClientes: ChartData[];
-}
+import { useDashboard } from "@/hooks/useDashboard";
 
 export default function DashboardPage() {
-  const [stats, setStats] = useState<DashboardStats | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [isFetching, setIsFetching] = useState(false);
-
   const [selectedMonth, setSelectedMonth] = useState<number>(new Date().getMonth() + 1);
   const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
 
-  useEffect(() => {
-    // Solo mostrar pantalla de carga completa si no hay datos iniciales
-    if (!stats) setLoading(true);
-    else setIsFetching(true);
-    
-    fetch(`https://gymlabs-backend.onrender.com/api/dashboard/stats?mes=${selectedMonth}&anio=${selectedYear}`)
-      .then(res => res.json())
-      .then(data => {
-        setStats(data);
-        setLoading(false);
-        setIsFetching(false);
-      })
-      .catch(err => {
-        console.error("Error fetching dashboard stats:", err);
-        setLoading(false);
-        setIsFetching(false);
-      });
-  }, [selectedMonth, selectedYear]);
+  const { stats, loading, isFetching } = useDashboard(selectedMonth, selectedYear);
 
   if (loading) {
     return <div className="flex h-[50vh] items-center justify-center text-text-muted">Cargando métricas...</div>;

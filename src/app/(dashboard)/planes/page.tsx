@@ -1,35 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { usePlans } from "@/hooks/usePlans";
 import { Card } from "@/components/ui/card";
 import { Check, Star, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-interface Plan {
-  idPlan: number;
-  nombrePlan: string;
-  descripcion: string;
-  precio: number;
-  duracionMeses: number;
-  activo: boolean;
-}
-
 export default function PlanesPage() {
-  const [planes, setPlanes] = useState<Plan[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetch("https://gymlabs-backend.onrender.com/api/planes")
-      .then(res => res.json())
-      .then(data => {
-        setPlanes(data);
-        setLoading(false);
-      })
-      .catch(err => {
-        console.error("Error fetching planes:", err);
-        setLoading(false);
-      });
-  }, []);
+  const { plans: planes, loading } = usePlans();
 
   if (loading) {
     return <div className="flex h-[50vh] items-center justify-center text-text-muted">Cargando planes...</div>;
