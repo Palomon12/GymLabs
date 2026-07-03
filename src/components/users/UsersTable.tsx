@@ -50,10 +50,10 @@ export function UsersTable({
 
   const confirmToggle = () => {
     if (pendingToggleUser !== null) {
-      const needsPlanSelection = pendingToggleUser.activo === false && !pendingToggleUser.fechaVencimiento;
+      const needsPlanSelection = pendingToggleUser.activo === false;
       if (needsPlanSelection && selectedPlanId) {
         onToggleStatus(pendingToggleUser.idCliente, selectedPlanId);
-      } else {
+      } else if (!needsPlanSelection) {
         onToggleStatus(pendingToggleUser.idCliente);
       }
       setPendingToggleUser(null);
@@ -62,7 +62,7 @@ export function UsersTable({
   };
   
   const isActivating = pendingToggleUser ? pendingToggleUser.activo === false : false;
-  const needsPlanSelection = pendingToggleUser ? (isActivating && !pendingToggleUser.fechaVencimiento) : false;
+  const needsPlanSelection = pendingToggleUser ? isActivating : false;
   const getExpirationStyle = (user: Cliente) => {
     let expiration: Date;
     if (user.fechaVencimiento) {
@@ -121,7 +121,7 @@ export function UsersTable({
         {needsPlanSelection ? (
           <div className="mb-6">
             <p className="text-text-muted mb-4">
-              Este cliente no tiene una membresía previa. Para activarlo, debes asignarle un plan:
+              Para activar a este cliente, debes asignarle un nuevo plan que definirá su fecha de vencimiento:
             </p>
             <div className="grid gap-3">
               {plans.map(plan => (
