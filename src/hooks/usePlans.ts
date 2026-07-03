@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Plan } from '../types/plan';
+import { API_BASE_URL } from '@/config/api';
 
 export const usePlans = () => {
   const [plans, setPlans] = useState<Plan[]>([]);
@@ -8,7 +9,7 @@ export const usePlans = () => {
   useEffect(() => {
     const fetchPlans = async () => {
       try {
-        const response = await fetch("https://gymlabs-backend.onrender.com/api/planes");
+        const response = await fetch(`${API_BASE_URL}/planes`);
         if (response.ok) {
           const data = await response.json();
           setPlans(data);

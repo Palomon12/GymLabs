@@ -14,6 +14,46 @@ import { Cliente } from "@/types/cliente";
 import { useState } from "react";
 import { usePlans } from "@/hooks/usePlans";
 
+const getExpirationStyle = (user: Cliente) => {
+  let expiration: Date;
+  if (user.fechaVencimiento) {
+    expiration = new Date(user.fechaVencimiento);
+  } else if (user.fechaRegistro) {
+    expiration = new Date(user.fechaRegistro);
+    expiration.setDate(expiration.getDate() + 30);
+  } else {
+    return { text: "N/A", className: "text-text-muted" };
+  }
+  
+  const today = new Date();
+  const diffTime = expiration.getTime() - today.getTime();
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  
+  let className = "";
+  if (diffDays > 15) {
+    className = "text-[#c3f400]"; // Verde de la marca
+  } else if (diffDays > 5 && diffDays <= 15) {
+    className = "text-orange-500"; // Naranja
+  } else if (diffDays > 3 && diffDays <= 5) {
+    className = "text-red-500 font-bold"; // Rojo vivo
+  } else {
+    className = "text-red-900/70 font-bold"; // Rojo muy opaco
+  }
+
+  let text = "";
+  if (diffDays < 0) {
+    text = "Vencido";
+  } else if (diffDays === 0) {
+    text = "Vence hoy";
+  } else if (diffDays === 1) {
+    text = "Falta 1 día";
+  } else {
+    text = `Faltan ${diffDays} días`;
+  }
+
+  return { text, className };
+};
+
 interface UsersTableProps {
   users: Cliente[];
   loading: boolean;
@@ -63,45 +103,6 @@ export function UsersTable({
   
   const isActivating = pendingToggleUser ? pendingToggleUser.activo === false : false;
   const needsPlanSelection = pendingToggleUser ? isActivating : false;
-  const getExpirationStyle = (user: Cliente) => {
-    let expiration: Date;
-    if (user.fechaVencimiento) {
-      expiration = new Date(user.fechaVencimiento);
-    } else if (user.fechaRegistro) {
-      expiration = new Date(user.fechaRegistro);
-      expiration.setDate(expiration.getDate() + 30);
-    } else {
-      return { text: "N/A", className: "text-text-muted" };
-    }
-    
-    const today = new Date();
-    const diffTime = expiration.getTime() - today.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
-    let className = "";
-    if (diffDays > 15) {
-      className = "text-[#c3f400]"; // Verde de la marca
-    } else if (diffDays > 5 && diffDays <= 15) {
-      className = "text-orange-500"; // Naranja
-    } else if (diffDays > 3 && diffDays <= 5) {
-      className = "text-red-500 font-bold"; // Rojo vivo
-    } else {
-      className = "text-red-900/70 font-bold"; // Rojo muy opaco
-    }
-
-    let text = "";
-    if (diffDays < 0) {
-      text = "Vencido";
-    } else if (diffDays === 0) {
-      text = "Vence hoy";
-    } else if (diffDays === 1) {
-      text = "Falta 1 día";
-    } else {
-      text = `Faltan ${diffDays} días`;
-    }
-
-    return { text, className };
-  };
 
   const filteredUsers = users.filter(user => 
     user.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||

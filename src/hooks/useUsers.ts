@@ -1,5 +1,6 @@
 import { useState, useCallback } from "react";
 import { Cliente } from "@/types/cliente";
+import { API_BASE_URL } from "@/config/api";
 
 export function useUsers() {
   const [users, setUsers] = useState<Cliente[]>([]);
@@ -10,7 +11,7 @@ export function useUsers() {
   const fetchUsers = useCallback(async (page: number = 0, size: number = 10) => {
     setLoading(true);
     try {
-      const res = await fetch(`https://gymlabs-backend.onrender.com/api/clientes?page=${page}&size=${size}`);
+      const res = await fetch(`${API_BASE_URL}/clientes?page=${page}&size=${size}`);
       const data = await res.json();
       
       if (Array.isArray(data)) {
@@ -34,8 +35,8 @@ export function useUsers() {
   const saveUser = async (user: Partial<Cliente>, editingId: number | null, planId?: number) => {
     const isEditing = editingId !== null;
     let url = isEditing 
-      ? `https://gymlabs-backend.onrender.com/api/clientes/${editingId}`
-      : "https://gymlabs-backend.onrender.com/api/clientes";
+      ? `${API_BASE_URL}/clientes/${editingId}`
+      : `${API_BASE_URL}/clientes`;
     
     if (!isEditing && planId) {
       url += `?planId=${planId}`;
@@ -57,7 +58,7 @@ export function useUsers() {
   };
 
   const deleteUser = async (id: number) => {
-    const response = await fetch(`https://gymlabs-backend.onrender.com/api/clientes/${id}`, {
+    const response = await fetch(`${API_BASE_URL}/clientes/${id}`, {
       method: "DELETE"
     });
 
@@ -75,8 +76,8 @@ export function useUsers() {
     
     try {
       const url = planId 
-        ? `https://gymlabs-backend.onrender.com/api/clientes/${id}/toggle-estado?planId=${planId}`
-        : `https://gymlabs-backend.onrender.com/api/clientes/${id}/toggle-estado`;
+        ? `${API_BASE_URL}/clientes/${id}/toggle-estado?planId=${planId}`
+        : `${API_BASE_URL}/clientes/${id}/toggle-estado`;
 
       const response = await fetch(url, {
         method: "PATCH"
