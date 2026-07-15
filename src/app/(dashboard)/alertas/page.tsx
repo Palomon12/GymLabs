@@ -78,13 +78,13 @@ export default function AlertasPage() {
         }),
       });
       
-      if (!res.ok) throw new Error("Error enviando");
+      if (!res.ok) throw new Error("Error al enviar el correo. Verifica las credenciales SMTP en el backend.");
       
       // Marcar como enviado localmente en la UI
+      alert("Correo enviado exitosamente a " + selectedUser.correo);
       setSentAlerts(new Set(sentAlerts).add(selectedUser.idCliente));
-    } catch (e) {
-      alert("La alerta se registró localmente (Mock del backend para el envío).");
-      setSentAlerts(new Set(sentAlerts).add(selectedUser.idCliente));
+    } catch (e: any) {
+      alert("Error: " + e.message);
     }
   };
 
