@@ -131,7 +131,7 @@ export default function DashboardPage() {
             <div>
               <p className="text-xs font-bold text-text-muted tracking-[0.2em] uppercase mb-1">Ingresos Totales (Mes)</p>
               <h3 className="text-5xl lg:text-6xl font-bold text-white tracking-tighter">
-                ${stats?.ingresosMes?.toFixed(2) || "0.00"}
+                S/{stats?.ingresosMes?.toFixed(2) || "0.00"}
               </h3>
             </div>
             <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center border border-primary/20 text-primary group-hover:scale-110 transition-transform duration-500">
@@ -141,7 +141,7 @@ export default function DashboardPage() {
 
           <div className="mt-12 relative z-10">
             <div className="flex justify-between text-xs text-text-muted font-mono mb-3 uppercase tracking-wider">
-              <span>Progreso hacia Meta (${metaMensual})</span>
+              <span>Progreso hacia Meta (S/{metaMensual})</span>
               <span className="text-primary font-bold">{progresoMeta.toFixed(1)}%</span>
             </div>
             <div className="w-full bg-[#111111] rounded-full h-2 overflow-hidden shadow-inner border border-[#222222]">
@@ -198,7 +198,7 @@ export default function DashboardPage() {
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="#1c1c1c" vertical={false} />
                 <XAxis dataKey="name" stroke="#666666" fontSize={11} tickLine={false} axisLine={false} dy={10} />
-                <YAxis stroke="#666666" fontSize={11} tickLine={false} axisLine={false} tickFormatter={(value) => `$${value}`} dx={-10} />
+                <YAxis stroke="#666666" fontSize={11} tickLine={false} axisLine={false} tickFormatter={(value) => `S/${value}`} dx={-10} />
                 <Tooltip 
                   cursor={{fill: '#1a1a1a'}} 
                   contentStyle={{ backgroundColor: '#000000', border: '1px solid #333', borderRadius: '8px', color: '#fff', fontSize: '12px', fontWeight: 'bold' }}
