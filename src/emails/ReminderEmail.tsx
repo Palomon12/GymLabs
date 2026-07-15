@@ -103,7 +103,7 @@ export const ReminderEmail = ({ nombreCliente = "Cliente", diasRestantes = 3 }: 
           </Text>
           
           <Section style={buttonContainer}>
-            <Button style={button} href="https://gymlabs.com/renovar">
+            <Button style={button} href="https://gym-labs.vercel.app">
               Renovar mi Plan Ahora
             </Button>
           </Section>
