@@ -19,8 +19,10 @@ import {
 } from "recharts";
 
 import { API_BASE_URL } from "@/config/api";
+import { useAuth } from "@/context/AuthContext";
 
 export default function DashboardPage() {
+  const { user } = useAuth();
   const [selectedMonth, setSelectedMonth] = useState<number>(new Date().getMonth() + 1);
   const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
 
@@ -32,11 +34,15 @@ export default function DashboardPage() {
     let isMounted = true;
 
     const fetchStats = async () => {
+      if (!user) return;
       if (!stats) setLoading(true);
       else setIsFetching(true);
       
       try {
-        const response = await fetch(`${API_BASE_URL}/dashboard/stats?mes=${selectedMonth}&anio=${selectedYear}`);
+        const url = `${API_BASE_URL}/dashboard/stats?mes=${selectedMonth}&anio=${selectedYear}`;
+        const response = await fetch(url, {
+          headers: { 'Authorization': `Bearer ${user.token}` }
+        });
         if (response.ok && isMounted) {
           const data = await response.json();
           setStats(data);
@@ -56,7 +62,7 @@ export default function DashboardPage() {
     return () => {
       isMounted = false;
     };
-  }, [selectedMonth, selectedYear]);
+  }, [selectedMonth, selectedYear, user]);
 
   if (loading) {
     return (

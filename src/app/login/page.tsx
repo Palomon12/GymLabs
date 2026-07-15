@@ -4,25 +4,41 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { User, Lock, Eye, EyeOff, ArrowRight, Activity, Loader2 } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
+import { API_BASE_URL } from "@/config/api";
 
 export default function LoginPage() {
   const router = useRouter();
+  const { login } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
 
   const [formData, setFormData] = useState({ username: "", password: "" });
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    // Simular llamada a la API (retraso de 1.5 segundos)
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    setErrorMsg("");
     
-    // Aquí iría el fetch real a tu Spring Boot (ej. /api/auth/login)
-    console.log("Credenciales validadas:", formData);
-    
-    // Redirección al panel
-    router.push("/dashboard");
+    try {
+      const response = await fetch(`${API_BASE_URL}/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ correo: formData.username, password: formData.password })
+      });
+
+      if (!response.ok) {
+        throw new Error("Credenciales inválidas");
+      }
+
+      const data = await response.json();
+      login(data);
+    } catch (err: any) {
+      setErrorMsg(err.message || "Error de conexión");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -87,10 +103,9 @@ export default function LoginPage() {
               </label>
               <div className="relative">
                 <input 
-                  type="text"
-                  placeholder="admin"
+                  type="email"
+                  placeholder="ejemplo@correo.com"
                   required
-                  minLength={3}
                   value={formData.username}
                   onChange={(e) => setFormData({ ...formData, username: e.target.value })}
                   disabled={isLoading}
@@ -108,27 +123,18 @@ export default function LoginPage() {
               </div>
               <div className="relative">
                 <input 
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   placeholder="••••••••"
                   required
                   value={formData.password}
                   disabled={isLoading}
                   className="w-full bg-[#0A0F0D] border border-border focus:border-primary focus:ring-1 focus:ring-primary/50 outline-none px-5 py-4 pr-12 text-white font-mono placeholder:text-text-muted/30 transition-all rounded-md"
-                  onFocus={(e) => e.target.type = showPassword ? "text" : "password"}
-                  onBlur={(e) => e.target.type = showPassword ? "text" : "password"}
-                  onChange={(e) => {
-                    setFormData({ ...formData, password: e.target.value });
-                    e.target.type = showPassword ? "text" : "password";
-                  }}
+                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                   id="password-input"
                 />
                 <button 
                   type="button" 
-                  onClick={() => {
-                    setShowPassword(!showPassword);
-                    const input = document.getElementById('password-input') as HTMLInputElement;
-                    if (input) input.type = !showPassword ? "text" : "password";
-                  }}
+                  onClick={() => setShowPassword(!showPassword)}
                   disabled={isLoading}
                   className="absolute right-4 top-1/2 -translate-y-1/2 text-text-muted hover:text-white transition-colors"
                 >
@@ -137,8 +143,15 @@ export default function LoginPage() {
               </div>
             </div>
 
+            {/* Error Message */}
+            {errorMsg && (
+              <div className="text-alert text-sm font-bold bg-alert/10 p-3 rounded-md border border-alert/20 text-center">
+                {errorMsg}
+              </div>
+            )}
+
             {/* Submit Button */}
-            <div className="pt-8">
+            <div className="pt-2">
               <Button 
                 type="submit" 
                 disabled={isLoading}

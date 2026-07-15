@@ -42,7 +42,10 @@ export function UserFormModal({ isOpen, onClose, onSubmit, initialData, isEditin
       }
       
       // Fetch plans for dropdown
-      fetch(`${API_BASE_URL}/planes`)
+      const token = localStorage.getItem("gymlabs_auth") ? JSON.parse(localStorage.getItem("gymlabs_auth")!).token : "";
+      fetch(`${API_BASE_URL}/planes`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      })
         .then(res => res.json())
         .then(data => setPlans(data))
         .catch(console.error);

@@ -13,6 +13,7 @@ import {
   LogOut,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/context/AuthContext";
 
 const navItems = [
   { href: "/", label: "Inicio", icon: Users },
@@ -23,6 +24,7 @@ const navItems = [
 
 export function Sidebar() {
   const pathname = usePathname();
+  const { logout } = useAuth();
 
   return (
     <aside className="w-[260px] bg-black border-r border-[#111111] h-full flex flex-col fixed left-0 top-0 z-50">
@@ -70,13 +72,13 @@ export function Sidebar() {
           <Settings className={`w-5 h-5 transition-transform duration-500 ${pathname !== "/ajustes" ? "group-hover:rotate-90" : ""}`} />
           Ajustes
         </Link>
-        <Link
-          href="/login"
-          className="flex items-center gap-4 px-4 py-3 rounded-lg text-sm font-semibold text-alert hover:text-white hover:bg-alert/20 transition-all group mt-2"
+        <button
+          onClick={logout}
+          className="flex items-center w-full gap-4 px-4 py-3 rounded-lg text-sm font-semibold text-alert hover:text-white hover:bg-alert/20 transition-all group mt-2"
         >
           <LogOut className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
           Cerrar Sesión
-        </Link>
+        </button>
       </div>
     </aside>
   );

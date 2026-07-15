@@ -6,9 +6,11 @@ import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { PlanFormModal } from "@/components/ui/PlanFormModal";
 import { Plan } from "@/types/plan";
+import { useAuth } from "@/context/AuthContext";
 import { API_BASE_URL } from "@/config/api";
 
 export default function PlanesPage() {
+  const { user } = useAuth();
   const [planes, setPlanes] = useState<Plan[]>([]);
   const [loading, setLoading] = useState(true);
   
@@ -17,9 +19,12 @@ export default function PlanesPage() {
   const [editingId, setEditingId] = useState<number | null>(null);
 
   const fetchPlanes = async () => {
+    if (!user) return;
     setLoading(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/planes`);
+      const response = await fetch(`${API_BASE_URL}/planes?empresaId=${user.idEmpresa || 1}`, {
+        headers: { 'Authorization': `Bearer ${user.token}` }
+      });
       if (response.ok) {
         const data = await response.json();
         setPlanes(data);
@@ -33,7 +38,7 @@ export default function PlanesPage() {
 
   useEffect(() => {
     fetchPlanes();
-  }, []);
+  }, [user]);
 
   const handleOpenNew = () => {
     setEditingData(null);
@@ -48,9 +53,12 @@ export default function PlanesPage() {
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm("¿Estás seguro de que deseas eliminar este plan?")) return;
+    if (!user || !confirm("¿Estás seguro de que deseas eliminar este plan?")) return;
     try {
-      const res = await fetch(`${API_BASE_URL}/planes/${id}`, { method: 'DELETE' });
+      const res = await fetch(`${API_BASE_URL}/planes/${id}`, { 
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${user.token}` }
+      });
       if (!res.ok) throw new Error("Error al eliminar plan");
       fetchPlanes();
     } catch (err) {
@@ -59,13 +67,21 @@ export default function PlanesPage() {
   };
 
   const handleSave = async (formData: any) => {
+    if (!user) return;
     const url = editingId ? `${API_BASE_URL}/planes/${editingId}` : `${API_BASE_URL}/planes`;
     const method = editingId ? 'PUT' : 'POST';
+    const payload = {
+      ...formData,
+      empresa: { idEmpresa: user.idEmpresa || 1 }
+    };
     
     const res = await fetch(url, {
       method,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(formData),
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${user.token}`
+      },
+      body: JSON.stringify(payload),
     });
     
     if (!res.ok) throw new Error("Error al guardar el plan");

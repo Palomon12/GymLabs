@@ -9,8 +9,10 @@ import { UserDeleteModal } from "@/components/users/UserDeleteModal";
 import { Cliente } from "@/types/cliente";
 import { DEFAULT_EMPRESA_ID } from "@/config/constants";
 import { API_BASE_URL } from "@/config/api";
+import { useAuth } from "@/context/AuthContext";
 
 export default function UsersPage() {
+  const { user } = useAuth();
   const [users, setUsers] = useState<Cliente[]>([]);
   const [loading, setLoading] = useState(true);
   const [totalPages, setTotalPages] = useState(1);
@@ -30,15 +32,19 @@ export default function UsersPage() {
   const [isDeleting, setIsDeleting] = useState(false);
 
   const fetchUsers = useCallback(async (page: number, size: number, search: string, status: string) => {
+    if (!user) return;
     setLoading(true);
     try {
       const url = new URL(`${API_BASE_URL}/clientes`);
       url.searchParams.append("page", page.toString());
       url.searchParams.append("size", size.toString());
+      url.searchParams.append("empresaId", (user?.idEmpresa || 1).toString());
       if (search) url.searchParams.append("searchTerm", search);
       url.searchParams.append("filterStatus", status);
       
-      const response = await fetch(url.toString());
+      const response = await fetch(url.toString(), {
+        headers: { 'Authorization': `Bearer ${user.token}` }
+      });
       if (response.ok) {
         const data = await response.json();
         if (Array.isArray(data)) {
@@ -56,13 +62,14 @@ export default function UsersPage() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [user]);
 
   useEffect(() => {
     fetchUsers(currentPage - 1, itemsPerPage, searchTerm, filterStatus);
   }, [fetchUsers, currentPage, itemsPerPage, searchTerm, filterStatus]);
 
   const saveUser = async (userData: Partial<Cliente>, id?: number | null, planId?: number) => {
+    if (!user) return;
     let url = id 
       ? `${API_BASE_URL}/clientes/${id}`
       : `${API_BASE_URL}/clientes`;
@@ -75,7 +82,10 @@ export default function UsersPage() {
     
     const response = await fetch(url, {
       method,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${user.token}` 
+      },
       body: JSON.stringify(userData),
     });
     
@@ -87,18 +97,24 @@ export default function UsersPage() {
   };
 
   const deleteUser = async (id: number) => {
+    if (!user) return;
     const response = await fetch(`${API_BASE_URL}/clientes/${id}`, {
       method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${user.token}` }
     });
     if (!response.ok) throw new Error("Error al eliminar el usuario");
   };
 
   const toggleUserStatus = async (id: number, planId?: number) => {
+    if (!user) return;
     const url = planId 
       ? `${API_BASE_URL}/clientes/${id}/toggle-estado?planId=${planId}`
       : `${API_BASE_URL}/clientes/${id}/toggle-estado`;
 
-    const response = await fetch(url, { method: 'PATCH' });
+    const response = await fetch(url, { 
+      method: 'PATCH',
+      headers: { 'Authorization': `Bearer ${user.token}` }
+    });
     if (!response.ok) throw new Error("Error al cambiar el estado");
     fetchUsers(currentPage - 1, itemsPerPage, searchTerm, filterStatus);
   };
@@ -126,7 +142,7 @@ export default function UsersPage() {
     const { planId, ...rest } = formData;
     const payload = {
       ...rest,
-      empresa: { idEmpresa: DEFAULT_EMPRESA_ID }
+      empresa: { idEmpresa: user?.idEmpresa || 1 }
     };
     await saveUser(payload, editingId, planId ? Number(planId) : undefined);
     fetchUsers(currentPage - 1, itemsPerPage, searchTerm, filterStatus);

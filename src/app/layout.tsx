@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Hanken_Grotesk, Geist_Mono } from "next/font/google";
+import { AuthProvider } from "@/context/AuthContext";
 import "./globals.css";
 
 const hanken = Hanken_Grotesk({
@@ -27,7 +28,11 @@ export default function RootLayout({
       lang="es"
       className={`${hanken.variable} ${geistMono.variable} h-full w-full antialiased dark`}
     >
-      <body className="min-h-full w-full bg-background text-text-main flex flex-col">{children}</body>
+      <body className="min-h-full w-full bg-background text-text-main flex flex-col">
+        <AuthProvider>
+          {children}
+        </AuthProvider>
+      </body>
     </html>
   );
 }

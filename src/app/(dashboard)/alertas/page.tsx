@@ -5,9 +5,11 @@ import { AlertPreviewModal } from "@/components/ui/AlertPreviewModal";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Mail, AlertTriangle, CheckCircle2 } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
 import { API_BASE_URL } from "@/config/api";
 
 export default function AlertasPage() {
+  const { user } = useAuth();
   const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedUser, setSelectedUser] = useState<any>(null);
@@ -16,12 +18,16 @@ export default function AlertasPage() {
 
   useEffect(() => {
     const fetchUsers = async () => {
+      if (!user) return;
       try {
         const url = new URL(`${API_BASE_URL}/clientes`);
         url.searchParams.append("page", "0");
         url.searchParams.append("size", "1000");
+        url.searchParams.append("empresaId", (user.idEmpresa || 1).toString());
 
-        const res = await fetch(url.toString());
+        const res = await fetch(url.toString(), {
+          headers: { 'Authorization': `Bearer ${user.token}` }
+        });
         if (res.ok) {
           const data = await res.json();
           if (Array.isArray(data)) {
@@ -37,7 +43,7 @@ export default function AlertasPage() {
       }
     };
     fetchUsers();
-  }, []);
+  }, [user]);
 
   // Filtrar solo usuarios próximos a vencer (menos de 7 días) o vencidos
   const atRiskUsers = useMemo(() => {
@@ -61,7 +67,10 @@ export default function AlertasPage() {
     try {
       const res = await fetch(`${API_BASE_URL}/alertas/enviar`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${user.token}`
+        },
         body: JSON.stringify({
           nombreCliente: selectedUser.nombre,
           diasRestantes: diffDays,
