@@ -3,21 +3,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useEffect, useState } from "react";
 import { usePlans } from "@/hooks/usePlans";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-
-const userSchema = z.object({
-  nombre: z.string().min(1, "El nombre es requerido."),
-  apellido: z.string().min(1, "El apellido es requerido."),
-  dni: z.string().regex(/^\d{8}$/, "El DNI debe tener 8 dígitos numéricos."),
-  telefono: z.string().regex(/^\d{9,15}$/, "Ingresa un teléfono válido.").optional().or(z.literal("")),
-  correo: z.string().email("Correo electrónico inválido.").optional().or(z.literal("")),
-  direccion: z.string().optional().or(z.literal("")),
-  planId: z.string().optional(),
-});
-
-type UserFormValues = z.infer<typeof userSchema>;
 
 interface UserFormModalProps {
   isOpen: boolean;
@@ -30,30 +15,20 @@ interface UserFormModalProps {
 export function UserFormModal({ isOpen, onClose, onSubmit, initialData, isEditing }: UserFormModalProps) {
   const { plans } = usePlans();
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const {
-    register,
-    handleSubmit,
-    reset,
-    setError,
-    formState: { errors }
-  } = useForm<UserFormValues>({
-    resolver: zodResolver(userSchema),
-    defaultValues: {
-      nombre: "",
-      apellido: "",
-      dni: "",
-      telefono: "",
-      correo: "",
-      direccion: "",
-      planId: ""
-    }
+  const [formData, setFormData] = useState({
+    nombre: "",
+    apellido: "",
+    dni: "",
+    telefono: "",
+    correo: "",
+    direccion: "",
+    planId: ""
   });
 
   useEffect(() => {
     if (isOpen) {
       if (initialData) {
-        reset({ 
+        setFormData({ 
           nombre: initialData.nombre || "",
           apellido: initialData.apellido || "",
           dni: initialData.dni || "",
@@ -63,20 +38,21 @@ export function UserFormModal({ isOpen, onClose, onSubmit, initialData, isEditin
           planId: ""
         });
       } else {
-        reset({ nombre: "", apellido: "", dni: "", telefono: "", correo: "", direccion: "", planId: "" });
+        setFormData({ nombre: "", apellido: "", dni: "", telefono: "", correo: "", direccion: "", planId: "" });
       }
     }
-  }, [isOpen, initialData, reset]);
+  }, [isOpen, initialData]);
 
-  const onFormSubmit = async (data: UserFormValues) => {
-    if (!isEditing && !data.planId) {
-      setError("planId", { type: "manual", message: "Selecciona un plan." });
+  const onFormSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!isEditing && !formData.planId) {
+      alert("Selecciona un plan.");
       return;
     }
     
     setIsSubmitting(true);
     try {
-      await onSubmit(data);
+      await onSubmit(formData);
       onClose();
     } catch (error: any) {
       alert(error.message || "Error al procesar la solicitud.");
@@ -87,42 +63,69 @@ export function UserFormModal({ isOpen, onClose, onSubmit, initialData, isEditin
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={isEditing ? "Editar Miembro" : "Registrar Nuevo Miembro"}>
-      <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-4">
+      <form onSubmit={onFormSubmit} className="space-y-4">
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
             <label className="text-xs font-semibold text-text-muted tracking-widest uppercase font-mono">Nombre</label>
-            <Input {...register("nombre")} placeholder="Ej. Carlos" />
-            {errors.nombre && <p className="text-alert text-xs mt-1">{errors.nombre.message}</p>}
+            <Input 
+              required
+              value={formData.nombre}
+              onChange={(e) => setFormData({...formData, nombre: e.target.value})}
+              placeholder="Ej. Carlos" 
+            />
           </div>
           <div className="space-y-2">
             <label className="text-xs font-semibold text-text-muted tracking-widest uppercase font-mono">Apellido</label>
-            <Input {...register("apellido")} placeholder="Ej. Mendoza" />
-            {errors.apellido && <p className="text-alert text-xs mt-1">{errors.apellido.message}</p>}
+            <Input 
+              required
+              value={formData.apellido}
+              onChange={(e) => setFormData({...formData, apellido: e.target.value})}
+              placeholder="Ej. Mendoza" 
+            />
           </div>
         </div>
         
         <div className="space-y-2">
           <label className="text-xs font-semibold text-text-muted tracking-widest uppercase font-mono">DNI</label>
-          <Input {...register("dni")} placeholder="Ej. 45283910" />
-          {errors.dni && <p className="text-alert text-xs mt-1">{errors.dni.message}</p>}
+          <Input 
+            required
+            pattern="\d{8}"
+            title="El DNI debe tener 8 dígitos numéricos"
+            value={formData.dni}
+            onChange={(e) => setFormData({...formData, dni: e.target.value})}
+            placeholder="Ej. 45283910" 
+          />
         </div>
         
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
             <label className="text-xs font-semibold text-text-muted tracking-widest uppercase font-mono">Teléfono</label>
-            <Input {...register("telefono")} placeholder="Opcional" />
-            {errors.telefono && <p className="text-alert text-xs mt-1">{errors.telefono.message}</p>}
+            <Input 
+              pattern="\d{9,15}"
+              title="Ingresa un teléfono válido"
+              value={formData.telefono}
+              onChange={(e) => setFormData({...formData, telefono: e.target.value})}
+              placeholder="Opcional" 
+            />
           </div>
           <div className="space-y-2">
             <label className="text-xs font-semibold text-text-muted tracking-widest uppercase font-mono">Correo Electrónico</label>
-            <Input type="email" {...register("correo")} placeholder="ejemplo@correo.com" />
-            {errors.correo && <p className="text-alert text-xs mt-1">{errors.correo.message}</p>}
+            <Input 
+              type="email" 
+              value={formData.correo}
+              onChange={(e) => setFormData({...formData, correo: e.target.value})}
+              placeholder="ejemplo@correo.com" 
+            />
           </div>
         </div>
 
         <div className="space-y-2">
           <label className="text-xs font-semibold text-text-muted tracking-widest uppercase font-mono">Dirección</label>
-          <Input {...register("direccion")} placeholder="Opcional" />
+          <Input 
+            value={formData.direccion}
+            onChange={(e) => setFormData({...formData, direccion: e.target.value})}
+            placeholder="Opcional" 
+          />
         </div>
 
         {!isEditing && (
@@ -130,7 +133,9 @@ export function UserFormModal({ isOpen, onClose, onSubmit, initialData, isEditin
             <label className="text-xs font-semibold text-text-muted tracking-widest uppercase font-mono">Plan Inicial</label>
             <div className="relative">
               <select 
-                {...register("planId")}
+                required
+                value={formData.planId}
+                onChange={(e) => setFormData({...formData, planId: e.target.value})}
                 className="flex h-11 w-full rounded-md border border-[#222222] bg-[#111111] px-3 py-2 text-sm text-white focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all appearance-none cursor-pointer hover:border-[#333333]"
               >
                 <option value="" disabled className="bg-[#111111] text-text-muted">Selecciona un plan...</option>
@@ -146,7 +151,6 @@ export function UserFormModal({ isOpen, onClose, onSubmit, initialData, isEditin
                 </svg>
               </div>
             </div>
-            {errors.planId && <p className="text-alert text-xs mt-1">{errors.planId.message}</p>}
           </div>
         )}
 

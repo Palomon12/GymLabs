@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { DashboardStats } from "@/types/dashboard";
 import { Card } from "@/components/ui/card";
 import { Users, DollarSign, Activity, TrendingUp, Calendar } from "lucide-react";
 import {
@@ -17,13 +18,45 @@ import {
   AreaChart
 } from "recharts";
 
-import { useDashboard } from "@/hooks/useDashboard";
+import { API_BASE_URL } from "@/config/api";
 
 export default function DashboardPage() {
   const [selectedMonth, setSelectedMonth] = useState<number>(new Date().getMonth() + 1);
   const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
 
-  const { stats, loading, isFetching } = useDashboard(selectedMonth, selectedYear);
+  const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [isFetching, setIsFetching] = useState(false);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchStats = async () => {
+      if (!stats) setLoading(true);
+      else setIsFetching(true);
+      
+      try {
+        const response = await fetch(`${API_BASE_URL}/dashboard/stats?mes=${selectedMonth}&anio=${selectedYear}`);
+        if (response.ok && isMounted) {
+          const data = await response.json();
+          setStats(data);
+        }
+      } catch (error) {
+        console.error("Error fetching dashboard stats:", error);
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+          setIsFetching(false);
+        }
+      }
+    };
+
+    fetchStats();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [selectedMonth, selectedYear]);
 
   if (loading) {
     return (

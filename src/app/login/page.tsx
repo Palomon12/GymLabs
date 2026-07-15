@@ -2,40 +2,24 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import { User, Lock, Eye, EyeOff, ArrowRight, Activity, Loader2 } from "lucide-react";
-
-// Esquema de validación Zod
-const loginSchema = z.object({
-  username: z.string().min(3, "El usuario debe tener al menos 3 caracteres"),
-  password: z.string().min(1, "La contraseña es requerida"),
-});
-
-type LoginFormValues = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<LoginFormValues>({
-    resolver: zodResolver(loginSchema),
-  });
+  const [formData, setFormData] = useState({ username: "", password: "" });
 
-  const onSubmit = async (data: LoginFormValues) => {
+  const onSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     setIsLoading(true);
     // Simular llamada a la API (retraso de 1.5 segundos)
     await new Promise((resolve) => setTimeout(resolve, 1500));
     
     // Aquí iría el fetch real a tu Spring Boot (ej. /api/auth/login)
-    console.log("Credenciales validadas:", data);
+    console.log("Credenciales validadas:", formData);
     
     // Redirección al panel
     router.push("/dashboard");
@@ -94,7 +78,7 @@ export default function LoginPage() {
             </p>
           </div>
 
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+          <form onSubmit={onSubmit} className="space-y-8">
             
             {/* Username Field */}
             <div className="space-y-4 group">
@@ -105,14 +89,14 @@ export default function LoginPage() {
                 <input 
                   type="text"
                   placeholder="admin"
-                  {...register("username")}
+                  required
+                  minLength={3}
+                  value={formData.username}
+                  onChange={(e) => setFormData({ ...formData, username: e.target.value })}
                   disabled={isLoading}
-                  className={`w-full bg-[#0A0F0D] border ${errors.username ? 'border-alert' : 'border-border'} focus:border-primary focus:ring-1 focus:ring-primary/50 outline-none px-5 py-4 text-white font-mono placeholder:text-text-muted/30 transition-all rounded-md`}
+                  className="w-full bg-[#0A0F0D] border border-border focus:border-primary focus:ring-1 focus:ring-primary/50 outline-none px-5 py-4 text-white font-mono placeholder:text-text-muted/30 transition-all rounded-md"
                 />
               </div>
-              {errors.username && (
-                <p className="text-alert text-xs font-mono mt-2">{errors.username.message}</p>
-              )}
             </div>
 
             {/* Password Field */}
@@ -126,13 +110,14 @@ export default function LoginPage() {
                 <input 
                   type="password"
                   placeholder="••••••••"
-                  {...register("password")}
+                  required
+                  value={formData.password}
                   disabled={isLoading}
-                  className={`w-full bg-[#0A0F0D] border ${errors.password ? 'border-alert' : 'border-border'} focus:border-primary focus:ring-1 focus:ring-primary/50 outline-none px-5 py-4 pr-12 text-white font-mono placeholder:text-text-muted/30 transition-all rounded-md`}
+                  className="w-full bg-[#0A0F0D] border border-border focus:border-primary focus:ring-1 focus:ring-primary/50 outline-none px-5 py-4 pr-12 text-white font-mono placeholder:text-text-muted/30 transition-all rounded-md"
                   onFocus={(e) => e.target.type = showPassword ? "text" : "password"}
                   onBlur={(e) => e.target.type = showPassword ? "text" : "password"}
                   onChange={(e) => {
-                    register("password").onChange(e);
+                    setFormData({ ...formData, password: e.target.value });
                     e.target.type = showPassword ? "text" : "password";
                   }}
                   id="password-input"
@@ -150,9 +135,6 @@ export default function LoginPage() {
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
-              {errors.password && (
-                <p className="text-alert text-xs font-mono mt-2">{errors.password.message}</p>
-              )}
             </div>
 
             {/* Submit Button */}
