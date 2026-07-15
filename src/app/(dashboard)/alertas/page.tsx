@@ -1,17 +1,21 @@
 "use client";
 
 import { useUsers } from "@/hooks/useUsers";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { AlertPreviewModal } from "@/components/ui/AlertPreviewModal";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Mail, AlertTriangle, CheckCircle2 } from "lucide-react";
 
 export default function AlertasPage() {
-  const { users, loading } = useUsers();
+  const { users, loading, fetchUsers } = useUsers();
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [sentAlerts, setSentAlerts] = useState<Set<number>>(new Set());
+
+  useEffect(() => {
+    fetchUsers(0, 1000); // Obtener suficientes usuarios para evaluar el riesgo
+  }, [fetchUsers]);
 
   // Filtrar solo usuarios próximos a vencer (menos de 7 días) o vencidos
   const atRiskUsers = useMemo(() => {
