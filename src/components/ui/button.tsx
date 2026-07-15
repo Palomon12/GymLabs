@@ -7,7 +7,7 @@ export interface ButtonProps
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className = "", variant = "primary", size = "default", ...props }, ref) => {
+  ({ className = "", variant = "primary", size = "default", children, ...props }, ref) => {
     
     let variantClasses = "";
     if (variant === "primary") variantClasses = "bg-primary text-[#283500] hover:bg-primary-hover shadow-[0_0_15px_rgba(195,244,0,0.1)]";
@@ -28,7 +28,9 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         ref={ref}
         className={`${baseClasses} ${variantClasses} ${sizeClasses} ${className}`}
         {...props}
-      />
+      >
+        {children}
+      </button>
     )
   }
 )
