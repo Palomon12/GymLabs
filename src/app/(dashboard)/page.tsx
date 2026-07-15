@@ -32,16 +32,24 @@ export default function UsersPage() {
   const fetchUsers = useCallback(async (page: number, size: number, search: string, status: string) => {
     setLoading(true);
     try {
-      let url = `${API_BASE_URL}/clientes/empresa/${DEFAULT_EMPRESA_ID}?page=${page}&size=${size}`;
-      if (search) url += `&search=${encodeURIComponent(search)}`;
-      if (status !== 'ALL') url += `&activo=${status === 'ACTIVOS'}`;
+      const url = new URL(`${API_BASE_URL}/clientes`);
+      url.searchParams.append("page", page.toString());
+      url.searchParams.append("size", size.toString());
+      if (search) url.searchParams.append("searchTerm", search);
+      url.searchParams.append("filterStatus", status);
       
-      const response = await fetch(url);
+      const response = await fetch(url.toString());
       if (response.ok) {
         const data = await response.json();
-        setUsers(data.content);
-        setTotalPages(data.totalPages);
-        setTotalElements(data.totalElements);
+        if (Array.isArray(data)) {
+          setUsers(data);
+          setTotalPages(Math.ceil(data.length / size));
+          setTotalElements(data.length);
+        } else {
+          setUsers(data.content || []);
+          setTotalPages(data.totalPages || 0);
+          setTotalElements(data.totalElements || 0);
+        }
       }
     } catch (error) {
       console.error("Error fetching users:", error);
@@ -55,9 +63,13 @@ export default function UsersPage() {
   }, [fetchUsers, currentPage, itemsPerPage, searchTerm, filterStatus]);
 
   const saveUser = async (userData: Partial<Cliente>, id?: number | null, planId?: number) => {
-    const url = id 
+    let url = id 
       ? `${API_BASE_URL}/clientes/${id}`
-      : `${API_BASE_URL}/clientes/crear${planId ? `?planId=${planId}` : ''}`;
+      : `${API_BASE_URL}/clientes`;
+    
+    if (!id && planId) {
+      url += `?planId=${planId}`;
+    }
       
     const method = id ? 'PUT' : 'POST';
     
@@ -83,10 +95,10 @@ export default function UsersPage() {
 
   const toggleUserStatus = async (id: number, planId?: number) => {
     const url = planId 
-      ? `${API_BASE_URL}/clientes/${id}/toggle-status?planId=${planId}`
-      : `${API_BASE_URL}/clientes/${id}/toggle-status`;
+      ? `${API_BASE_URL}/clientes/${id}/toggle-estado?planId=${planId}`
+      : `${API_BASE_URL}/clientes/${id}/toggle-estado`;
 
-    const response = await fetch(url, { method: 'PUT' });
+    const response = await fetch(url, { method: 'PATCH' });
     if (!response.ok) throw new Error("Error al cambiar el estado");
     fetchUsers(currentPage - 1, itemsPerPage, searchTerm, filterStatus);
   };

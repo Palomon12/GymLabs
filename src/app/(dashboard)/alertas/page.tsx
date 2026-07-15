@@ -17,10 +17,18 @@ export default function AlertasPage() {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const res = await fetch(`${API_BASE_URL}/clientes/empresa/1?page=0&size=1000`);
+        const url = new URL(`${API_BASE_URL}/clientes`);
+        url.searchParams.append("page", "0");
+        url.searchParams.append("size", "1000");
+
+        const res = await fetch(url.toString());
         if (res.ok) {
           const data = await res.json();
-          setUsers(data.content || []);
+          if (Array.isArray(data)) {
+            setUsers(data);
+          } else {
+            setUsers(data.content || []);
+          }
         }
       } catch (err) {
         console.error("Error fetching users:", err);
