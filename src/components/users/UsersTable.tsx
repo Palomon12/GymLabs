@@ -9,7 +9,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Modal } from "@/components/ui/modal";
-import { Megaphone, Edit, Trash2 } from "lucide-react";
+import { Edit, Trash2 } from "lucide-react";
 import { Cliente } from "@/types/cliente";
 import { useState } from "react";
 import { usePlans } from "@/hooks/usePlans";
@@ -218,9 +218,7 @@ export function UsersTable({
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-2">
-                      <Button variant="secondary" className="h-8 px-3 text-xs font-mono font-medium border-[#2A3F36] text-text-muted hover:text-primary hover:border-primary">
-                        <Megaphone className="w-3 h-3 mr-2" /> Alerta
-                      </Button>
+
                       <Button variant="secondary" className="h-8 w-8 p-0 border-[#2A3F36] text-text-muted hover:text-blue-500 hover:border-blue-500" onClick={() => onEdit(user)}>
                         <Edit className="w-4 h-4" />
                       </Button>
