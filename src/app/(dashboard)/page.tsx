@@ -1,24 +1,26 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Card } from "@/components/ui/card";
-import { useUsers } from "@/hooks/useUsers";
 import { UsersHeader } from "@/components/users/UsersHeader";
 import { UsersTable } from "@/components/users/UsersTable";
 import { UserFormModal } from "@/components/users/UserFormModal";
 import { UserDeleteModal } from "@/components/users/UserDeleteModal";
 import { Cliente } from "@/types/cliente";
 import { DEFAULT_EMPRESA_ID } from "@/config/constants";
+import { API_BASE_URL } from "@/config/api";
 
 export default function UsersPage() {
-  const { users, loading, totalPages, totalElements, fetchUsers, saveUser, deleteUser, toggleUserStatus } = useUsers();
-  
+  const [users, setUsers] = useState<Cliente[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalElements, setTotalElements] = useState(0);
+
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("ALL");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   
-  // Modal states
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingData, setEditingData] = useState<Partial<Cliente> | null>(null);
   const [editingId, setEditingId] = useState<number | null>(null);
@@ -27,12 +29,68 @@ export default function UsersPage() {
   const [userToDelete, setUserToDelete] = useState<number | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
+  const fetchUsers = useCallback(async (page: number, size: number, search: string, status: string) => {
+    setLoading(true);
+    try {
+      let url = `${API_BASE_URL}/clientes/empresa/${DEFAULT_EMPRESA_ID}?page=${page}&size=${size}`;
+      if (search) url += `&search=${encodeURIComponent(search)}`;
+      if (status !== 'ALL') url += `&activo=${status === 'ACTIVOS'}`;
+      
+      const response = await fetch(url);
+      if (response.ok) {
+        const data = await response.json();
+        setUsers(data.content);
+        setTotalPages(data.totalPages);
+        setTotalElements(data.totalElements);
+      }
+    } catch (error) {
+      console.error("Error fetching users:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
-    // page - 1 because Spring Boot pagination is 0-indexed
     fetchUsers(currentPage - 1, itemsPerPage, searchTerm, filterStatus);
   }, [fetchUsers, currentPage, itemsPerPage, searchTerm, filterStatus]);
 
-  // Handlers for Form
+  const saveUser = async (userData: Partial<Cliente>, id?: number | null, planId?: number) => {
+    const url = id 
+      ? `${API_BASE_URL}/clientes/${id}`
+      : `${API_BASE_URL}/clientes/crear${planId ? `?planId=${planId}` : ''}`;
+      
+    const method = id ? 'PUT' : 'POST';
+    
+    const response = await fetch(url, {
+      method,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(userData),
+    });
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(errorText || "Error al guardar el usuario");
+    }
+    return response.json();
+  };
+
+  const deleteUser = async (id: number) => {
+    const response = await fetch(`${API_BASE_URL}/clientes/${id}`, {
+      method: 'DELETE',
+    });
+    if (!response.ok) throw new Error("Error al eliminar el usuario");
+  };
+
+  const toggleUserStatus = async (id: number, planId?: number) => {
+    const url = planId 
+      ? `${API_BASE_URL}/clientes/${id}/toggle-status?planId=${planId}`
+      : `${API_BASE_URL}/clientes/${id}/toggle-status`;
+
+    const response = await fetch(url, { method: 'PUT' });
+    if (!response.ok) throw new Error("Error al cambiar el estado");
+    fetchUsers(currentPage - 1, itemsPerPage, searchTerm, filterStatus);
+  };
+
   const handleOpenNew = () => {
     setEditingData(null);
     setEditingId(null);
@@ -62,7 +120,6 @@ export default function UsersPage() {
     fetchUsers(currentPage - 1, itemsPerPage, searchTerm, filterStatus);
   };
 
-  // Handlers for Delete
   const handleDeleteClick = (id: number) => {
     setUserToDelete(id);
     setIsDeleteModalOpen(true);

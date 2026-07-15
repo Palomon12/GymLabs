@@ -11,8 +11,8 @@ import { Button } from "@/components/ui/button";
 import { Modal } from "@/components/ui/modal";
 import { Edit, Trash2 } from "lucide-react";
 import { Cliente } from "@/types/cliente";
-import { useState } from "react";
-import { usePlans } from "@/hooks/usePlans";
+import { useState, useEffect } from "react";
+import { API_BASE_URL } from "@/config/api";
 
 const getExpirationStyle = (user: Cliente) => {
   let expiration: Date;
@@ -88,7 +88,16 @@ export function UsersTable({
   
   const [pendingToggleUser, setPendingToggleUser] = useState<Cliente | null>(null);
   const [selectedPlanId, setSelectedPlanId] = useState<number | null>(null);
-  const { plans } = usePlans();
+  const [plans, setPlans] = useState<any[]>([]);
+
+  useEffect(() => {
+    if (pendingToggleUser && pendingToggleUser.activo === false) {
+      fetch(`${API_BASE_URL}/planes`)
+        .then(res => res.json())
+        .then(data => setPlans(data))
+        .catch(console.error);
+    }
+  }, [pendingToggleUser]);
 
   const confirmToggle = () => {
     if (pendingToggleUser !== null) {

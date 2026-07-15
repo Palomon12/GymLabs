@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { cn } from "@/lib/utils";
 import {
   Home,
   LayoutDashboard,
@@ -39,21 +38,23 @@ export function Sidebar() {
         <nav className="space-y-1">
           {navItems.map((item) => {
             const isActiveStrict = pathname === item.href;
+            
+            const activeClasses = isActiveStrict 
+              ? "text-[#0A0F0D] bg-primary shadow-[0_0_15px_rgba(195,244,0,0.2)]" 
+              : "text-text-muted hover:text-white hover:bg-[#111111]";
+              
+            const iconActiveClasses = isActiveStrict ? "text-[#0A0F0D]" : "group-hover:text-primary transition-colors";
+
             return (
               <Link
                 key={item.href}
                 href={item.href}
-                className={cn(
-                  "flex items-center gap-4 px-4 py-3 rounded-lg text-sm font-semibold transition-all relative overflow-hidden group",
-                  isActiveStrict
-                    ? "text-[#0A0F0D] bg-primary shadow-[0_0_15px_rgba(195,244,0,0.2)]"
-                    : "text-text-muted hover:text-white hover:bg-[#111111]"
-                )}
+                className={`flex items-center gap-4 px-4 py-3 rounded-lg text-sm font-semibold transition-all relative overflow-hidden group ${activeClasses}`}
               >
                 {isActiveStrict && (
                   <span className="absolute inset-0 bg-white/20 mix-blend-overlay" />
                 )}
-                <item.icon className={cn("w-5 h-5", isActiveStrict ? "text-[#0A0F0D]" : "group-hover:text-primary transition-colors")} />
+                <item.icon className={`w-5 h-5 ${iconActiveClasses}`} />
                 {item.label}
               </Link>
             );
@@ -64,12 +65,9 @@ export function Sidebar() {
       <div className="mt-auto p-6 border-t border-[#111111] flex flex-col gap-2">
         <Link
           href="/ajustes"
-          className={cn(
-            "flex items-center gap-4 px-4 py-3 rounded-lg text-sm font-semibold transition-all group",
-            pathname === "/ajustes" ? "bg-primary text-[#0A0F0D] shadow-[0_0_15px_rgba(195,244,0,0.2)]" : "text-text-muted hover:text-white hover:bg-[#111111]"
-          )}
+          className={`flex items-center gap-4 px-4 py-3 rounded-lg text-sm font-semibold transition-all group ${pathname === "/ajustes" ? "bg-primary text-[#0A0F0D] shadow-[0_0_15px_rgba(195,244,0,0.2)]" : "text-text-muted hover:text-white hover:bg-[#111111]"}`}
         >
-          <Settings className={cn("w-5 h-5 transition-transform duration-500", pathname !== "/ajustes" && "group-hover:rotate-90")} />
+          <Settings className={`w-5 h-5 transition-transform duration-500 ${pathname !== "/ajustes" ? "group-hover:rotate-90" : ""}`} />
           Ajustes
         </Link>
         <Link

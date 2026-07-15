@@ -2,7 +2,7 @@ import { Modal } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useEffect, useState } from "react";
-import { usePlans } from "@/hooks/usePlans";
+import { API_BASE_URL } from "@/config/api";
 
 interface UserFormModalProps {
   isOpen: boolean;
@@ -13,7 +13,7 @@ interface UserFormModalProps {
 }
 
 export function UserFormModal({ isOpen, onClose, onSubmit, initialData, isEditing }: UserFormModalProps) {
-  const { plans } = usePlans();
+  const [plans, setPlans] = useState<any[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     nombre: "",
@@ -40,6 +40,12 @@ export function UserFormModal({ isOpen, onClose, onSubmit, initialData, isEditin
       } else {
         setFormData({ nombre: "", apellido: "", dni: "", telefono: "", correo: "", direccion: "", planId: "" });
       }
+      
+      // Fetch plans for dropdown
+      fetch(`${API_BASE_URL}/planes`)
+        .then(res => res.json())
+        .then(data => setPlans(data))
+        .catch(console.error);
     }
   }, [isOpen, initialData]);
 

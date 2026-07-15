@@ -1,19 +1,39 @@
 "use client";
 
-import { usePlans } from "@/hooks/usePlans";
 import { Card } from "@/components/ui/card";
 import { Check, Star, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { PlanFormModal } from "@/components/ui/PlanFormModal";
 import { Plan } from "@/types/plan";
+import { API_BASE_URL } from "@/config/api";
 
 export default function PlanesPage() {
-  const { plans: planes, loading, savePlan } = usePlans();
+  const [planes, setPlanes] = useState<Plan[]>([]);
+  const [loading, setLoading] = useState(true);
   
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingData, setEditingData] = useState<Partial<Plan> | null>(null);
   const [editingId, setEditingId] = useState<number | null>(null);
+
+  const fetchPlanes = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/planes`);
+      if (response.ok) {
+        const data = await response.json();
+        setPlanes(data);
+      }
+    } catch (error) {
+      console.error("Error fetching plans:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchPlanes();
+  }, []);
 
   const handleOpenNew = () => {
     setEditingData(null);
@@ -27,8 +47,29 @@ export default function PlanesPage() {
     setIsModalOpen(true);
   };
 
+  const handleDelete = async (id: number) => {
+    if (!confirm("¿Estás seguro de que deseas eliminar este plan?")) return;
+    try {
+      const res = await fetch(`${API_BASE_URL}/planes/${id}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error("Error al eliminar plan");
+      fetchPlanes();
+    } catch (err) {
+      alert("No se pudo eliminar el plan. Es posible que esté asignado a membresías activas.");
+    }
+  };
+
   const handleSave = async (formData: any) => {
-    await savePlan(formData, editingId);
+    const url = editingId ? `${API_BASE_URL}/planes/${editingId}` : `${API_BASE_URL}/planes`;
+    const method = editingId ? 'PUT' : 'POST';
+    
+    const res = await fetch(url, {
+      method,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(formData),
+    });
+    
+    if (!res.ok) throw new Error("Error al guardar el plan");
+    fetchPlanes();
   };
 
   if (loading) {
@@ -72,7 +113,7 @@ export default function PlanesPage() {
               </div>
               
               <div className="mb-6">
-                <span className="text-4xl font-extrabold text-text-main">${plan.precio?.toFixed(2)}</span>
+                <span className="text-4xl font-extrabold text-text-main">S/{plan.precio?.toFixed(2)}</span>
                 <span className="text-text-muted text-sm ml-1">/ mes</span>
               </div>
               
@@ -93,7 +134,7 @@ export default function PlanesPage() {
                 <Button variant="secondary" className="flex-1 bg-[#1A1A1A] border border-[#2A3F36] hover:bg-[#2A3F36] text-text-main" onClick={() => handleEdit(plan)}>
                   Editar
                 </Button>
-                <Button variant="secondary" className="px-3 bg-[#1A1A1A] border border-[#2A3F36] text-text-muted hover:text-red-500 hover:border-red-500">
+                <Button variant="secondary" className="px-3 bg-[#1A1A1A] border border-[#2A3F36] text-text-muted hover:text-red-500 hover:border-red-500" onClick={() => handleDelete(plan.idPlan)}>
                   Borrar
                 </Button>
               </div>
