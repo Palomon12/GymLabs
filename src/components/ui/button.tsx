@@ -2,7 +2,7 @@ import * as React from "react"
 
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: "primary" | "secondary" | "alert" | "ghost"
+  variant?: "primary" | "secondary" | "alert" | "ghost" | "outline"
   size?: "default" | "sm" | "lg" | "icon"
 }
 
@@ -14,6 +14,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     if (variant === "secondary") variantClasses = "bg-transparent border border-primary text-primary hover:bg-primary/10";
     if (variant === "alert") variantClasses = "bg-alert text-white hover:bg-alert/90";
     if (variant === "ghost") variantClasses = "hover:bg-surface-hover hover:text-text-main text-text-muted";
+    if (variant === "outline") variantClasses = "bg-transparent border hover:bg-white/5";
 
     let sizeClasses = "";
     if (size === "default") sizeClasses = "h-10 px-4 py-2";

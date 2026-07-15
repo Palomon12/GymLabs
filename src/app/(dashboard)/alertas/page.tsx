@@ -60,7 +60,7 @@ export default function AlertasPage() {
   };
 
   const handleSendEmail = async () => {
-    if (!selectedUser || !selectedUser.fechaVencimiento) return;
+    if (!user || !selectedUser || !selectedUser.fechaVencimiento) return;
     
     const diffDays = Math.ceil((new Date(selectedUser.fechaVencimiento).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
     
