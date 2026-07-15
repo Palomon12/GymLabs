@@ -11,13 +11,12 @@ interface AjustesTabsProps {
 
 export function AjustesTabs({ currentUser }: AjustesTabsProps) {
   const [activeTab, setActiveTab] = useState("perfil");
-
   const isAdmin = currentUser.rol === 'ADMIN';
 
   return (
-    <div className="flex flex-col md:flex-row gap-8 items-start">
+    <div className="flex flex-col lg:flex-row gap-8 items-start w-full">
       {/* Sidebar Navigation */}
-      <aside className="w-full md:w-64 shrink-0 flex flex-col gap-2">
+      <aside className="w-full lg:w-64 shrink-0 flex flex-col gap-2">
         <button
           onClick={() => setActiveTab("perfil")}
           className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-all ${
@@ -59,7 +58,7 @@ export function AjustesTabs({ currentUser }: AjustesTabsProps) {
       </aside>
 
       {/* Main Content Area */}
-      <div className="flex-1 bg-[#121212] border border-[#1A1A1A] rounded-xl p-6 lg:p-8 min-h-[500px]">
+      <div className="flex-1 w-full min-w-0 bg-[#121212] border border-[#1A1A1A] rounded-xl p-6 lg:p-8 min-h-[500px]">
         {activeTab === "perfil" && <TabPerfil currentUser={currentUser} />}
         {isAdmin && activeTab === "empresa" && <TabEmpresa />}
         {isAdmin && activeTab === "personal" && <TabPersonal />}
