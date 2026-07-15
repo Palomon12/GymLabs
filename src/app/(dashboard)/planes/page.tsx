@@ -4,9 +4,32 @@ import { usePlans } from "@/hooks/usePlans";
 import { Card } from "@/components/ui/card";
 import { Check, Star, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useState } from "react";
+import { PlanFormModal } from "@/components/ui/PlanFormModal";
+import { Plan } from "@/types/plan";
 
 export default function PlanesPage() {
-  const { plans: planes, loading } = usePlans();
+  const { plans: planes, loading, savePlan } = usePlans();
+  
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingData, setEditingData] = useState<Partial<Plan> | null>(null);
+  const [editingId, setEditingId] = useState<number | null>(null);
+
+  const handleOpenNew = () => {
+    setEditingData(null);
+    setEditingId(null);
+    setIsModalOpen(true);
+  };
+
+  const handleEdit = (plan: Plan) => {
+    setEditingData(plan);
+    setEditingId(plan.idPlan);
+    setIsModalOpen(true);
+  };
+
+  const handleSave = async (formData: any) => {
+    await savePlan(formData, editingId);
+  };
 
   if (loading) {
     return <div className="flex h-[50vh] items-center justify-center text-text-muted">Cargando planes...</div>;
@@ -19,7 +42,7 @@ export default function PlanesPage() {
           <h2 className="text-3xl font-bold tracking-tight mb-1">Membresías y Planes</h2>
           <p className="text-text-muted">Gestiona los planes que ofreces a tus clientes.</p>
         </div>
-        <Button className="bg-primary text-[#121212] hover:bg-[#a6d600]">
+        <Button className="bg-primary text-[#121212] hover:bg-[#a6d600]" onClick={handleOpenNew}>
           + Crear Nuevo Plan
         </Button>
       </div>
@@ -67,7 +90,7 @@ export default function PlanesPage() {
               </div>
               
               <div className="mt-auto flex gap-2">
-                <Button variant="secondary" className="flex-1 bg-[#1A1A1A] border border-[#2A3F36] hover:bg-[#2A3F36] text-text-main">
+                <Button variant="secondary" className="flex-1 bg-[#1A1A1A] border border-[#2A3F36] hover:bg-[#2A3F36] text-text-main" onClick={() => handleEdit(plan)}>
                   Editar
                 </Button>
                 <Button variant="secondary" className="px-3 bg-[#1A1A1A] border border-[#2A3F36] text-text-muted hover:text-red-500 hover:border-red-500">
@@ -78,6 +101,14 @@ export default function PlanesPage() {
           ))
         )}
       </div>
+
+      <PlanFormModal 
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSubmit={handleSave}
+        initialData={editingData}
+        isEditing={editingId !== null}
+      />
     </div>
   );
 }
