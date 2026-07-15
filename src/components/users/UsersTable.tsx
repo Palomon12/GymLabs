@@ -228,12 +228,20 @@ export function UsersTable({
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-2">
 
-                      <Button variant="secondary" className="h-8 w-8 p-0 border-[#2A3F36] text-text-muted hover:text-blue-500 hover:border-blue-500" onClick={() => onEdit(user)}>
+                      <button 
+                        onClick={() => onEdit(user)}
+                        title="Editar Cliente"
+                        className="flex items-center justify-center h-8 w-8 rounded-md border border-[#2A3F36] bg-transparent text-text-muted hover:bg-blue-500/10 hover:text-blue-400 hover:border-blue-500/50 transition-all"
+                      >
                         <Edit className="w-4 h-4" />
-                      </Button>
-                      <Button variant="secondary" className="h-8 w-8 p-0 border-[#2A3F36] text-text-muted hover:text-red-500 hover:border-red-500" onClick={() => onDelete(user.idCliente)}>
+                      </button>
+                      <button 
+                        onClick={() => onDelete(user.idCliente)}
+                        title="Eliminar Cliente"
+                        className="flex items-center justify-center h-8 w-8 rounded-md border border-[#2A3F36] bg-transparent text-text-muted hover:bg-red-500/10 hover:text-red-400 hover:border-red-500/50 transition-all"
+                      >
                         <Trash2 className="w-4 h-4" />
-                      </Button>
+                      </button>
                     </div>
                   </TableCell>
                 </TableRow>
@@ -266,24 +274,22 @@ export function UsersTable({
           <span>de {serverTotalElements} usuarios</span>
         </div>
         <div className="flex gap-2">
-          <Button 
-            variant="secondary" 
-            className="h-8 w-8 p-0 border-[#2A3F36] text-text-muted hover:text-text-main" 
+          <button 
+            className="flex items-center justify-center h-8 w-8 rounded-md border border-[#2A3F36] bg-transparent text-text-muted hover:text-text-main hover:bg-[#2A3F36]/50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors" 
             disabled={currentPage === 1}
             onClick={() => onPageChange(Math.max(1, currentPage - 1))}
           >
              <span className="sr-only">Anterior</span>
              &lt;
-          </Button>
-          <Button 
-            variant="secondary" 
-            className="h-8 w-8 p-0 border-[#2A3F36] text-text-muted hover:text-text-main"
+          </button>
+          <button 
+            className="flex items-center justify-center h-8 w-8 rounded-md border border-[#2A3F36] bg-transparent text-text-muted hover:text-text-main hover:bg-[#2A3F36]/50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             disabled={currentPage >= serverTotalPages}
             onClick={() => onPageChange(Math.min(serverTotalPages, currentPage + 1))}
           >
              <span className="sr-only">Siguiente</span>
              &gt;
-          </Button>
+          </button>
         </div>
       </div>
     </>
