@@ -11,6 +11,9 @@ interface AuthUser {
   empresaNombre?: string;
   apellido?: string;
   correo?: string;
+  idPersonal?: number;
+  dni?: string;
+  telefono?: string;
 }
 
 interface AuthContextType {

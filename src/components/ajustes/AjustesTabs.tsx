@@ -10,7 +10,7 @@ interface AjustesTabsProps {
 
 export function AjustesTabs({ currentUser }: AjustesTabsProps) {
   const [activeTab, setActiveTab] = useState("perfil");
-  const isAdmin = currentUser.rol === 'ADMIN';
+  const isAdmin = currentUser.rol === 'ADMIN' || currentUser.rol === 'ROLE_ADMIN' || currentUser.rol === 'ROLE_SUPERADMIN';
 
   return (
     <div className="flex flex-col lg:flex-row gap-8 items-start w-full">

@@ -4,6 +4,8 @@ import { useState } from "react";
 import { Save, KeyRound } from "lucide-react";
 import { toast } from "sonner";
 
+import { API_BASE_URL } from "@/config/api";
+
 export function TabPerfil({ currentUser }: { currentUser: any }) {
   const [formData, setFormData] = useState({
     nombre: currentUser.nombre || "",
@@ -16,10 +18,50 @@ export function TabPerfil({ currentUser }: { currentUser: any }) {
     nueva: "",
     confirmar: ""
   });
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSaveProfile = (e: React.FormEvent) => {
+  const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast.success("Perfil guardado", { position: 'top-center' });
+    if (!currentUser.idPersonal) {
+      toast.error("No se pudo identificar al usuario actual", { position: 'top-center' });
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/personal/${currentUser.idPersonal}?empresaId=${currentUser.idEmpresa || 1}`, { credentials: "include",
+        method: 'PUT',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${currentUser.token}`
+        },
+        body: JSON.stringify({
+          nombre: formData.nombre,
+          apellido: formData.apellido,
+          correo: formData.correo,
+          rol: currentUser.rol,
+          dni: currentUser.dni || "00000000",
+          telefono: currentUser.telefono || ""
+        })
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || "Error al guardar el perfil");
+      }
+
+      toast.success("Perfil guardado correctamente", { position: 'top-center' });
+      
+      // Update local storage so the new name appears in the top nav
+      const updatedUser = { ...currentUser, nombre: formData.nombre, apellido: formData.apellido, correo: formData.correo };
+      localStorage.setItem("gymlabs_auth", JSON.stringify(updatedUser));
+      // Note: A full page reload or context update would be cleaner, but this updates the storage at least.
+      
+    } catch (error: any) {
+      toast.error(error.message, { position: 'top-center' });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleSavePassword = (e: React.FormEvent) => {
