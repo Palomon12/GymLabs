@@ -23,7 +23,7 @@ export default function DashboardLayout({
       } else {
         // Restricción de rutas para RECEPCIONISTA
         const isRecepcionista = user.rol === 'ROLE_RECEPCIONISTA' || user.rol === 'RECEPCIONISTA';
-        if (isRecepcionista && (pathname === '/dashboard' || pathname === '/planes')) {
+        if (isRecepcionista && pathname === '/dashboard') {
           router.push('/');
         } else {
           setIsAuthorized(true);

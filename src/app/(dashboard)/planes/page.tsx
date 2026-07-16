@@ -99,9 +99,11 @@ export default function PlanesPage() {
           <h2 className="text-3xl font-bold tracking-tight mb-1">Membresías y Planes</h2>
           <p className="text-text-muted">Gestiona los planes que ofreces a tus clientes.</p>
         </div>
-        <Button className="bg-primary text-[#121212] hover:bg-[#a6d600]" onClick={handleOpenNew}>
-          + Crear Nuevo Plan
-        </Button>
+        {(!user || (user.rol !== 'ROLE_RECEPCIONISTA' && user.rol !== 'RECEPCIONISTA')) && (
+          <Button className="bg-primary text-[#121212] hover:bg-[#a6d600]" onClick={handleOpenNew}>
+            + Crear Nuevo Plan
+          </Button>
+        )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
@@ -147,12 +149,16 @@ export default function PlanesPage() {
               </div>
               
               <div className="mt-auto flex gap-2">
-                <Button variant="secondary" className="flex-1 bg-[#1A1A1A] border border-[#2A3F36] hover:bg-[#2A3F36] text-text-main" onClick={() => handleEdit(plan)}>
-                  Editar
-                </Button>
-                <Button variant="secondary" className="px-3 bg-[#1A1A1A] border border-[#2A3F36] text-text-muted hover:text-red-500 hover:border-red-500" onClick={() => handleDelete(plan.idPlan)}>
-                  Borrar
-                </Button>
+                {(!user || (user.rol !== 'ROLE_RECEPCIONISTA' && user.rol !== 'RECEPCIONISTA')) && (
+                  <>
+                    <Button variant="secondary" className="flex-1 bg-[#1A1A1A] border border-[#2A3F36] hover:bg-[#2A3F36] text-text-main" onClick={() => handleEdit(plan)}>
+                      Editar
+                    </Button>
+                    <Button variant="secondary" className="px-3 bg-[#1A1A1A] border border-[#2A3F36] text-text-muted hover:text-red-500 hover:border-red-500" onClick={() => handleDelete(plan.idPlan)}>
+                      Borrar
+                    </Button>
+                  </>
+                )}
               </div>
             </Card>
           ))

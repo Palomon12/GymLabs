@@ -29,8 +29,8 @@ export function Sidebar() {
   // Filtrar items según rol
   const filteredNavItems = navItems.filter(item => {
     if (user?.rol === 'ROLE_RECEPCIONISTA' || user?.rol === 'RECEPCIONISTA') {
-      // Recepcionista solo ve Inicio y Alertas
-      return item.href === '/' || item.href === '/alertas';
+      // Recepcionista ve Inicio, Alertas y Planes (pero sin botones de edición)
+      return item.href === '/' || item.href === '/alertas' || item.href === '/planes';
     }
     return true; // Admin ve todo
   });
