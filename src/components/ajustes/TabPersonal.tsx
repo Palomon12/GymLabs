@@ -1,18 +1,38 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Edit, Trash2 } from "lucide-react";
 import { PersonalModal } from "./PersonalModal";
-
-const mockStaff = [
-  { id: 1, nombre: "Josué", apellido: "Admin", correo: "admin@gymlabs.com", rol: "ADMIN" },
-  { id: 2, nombre: "Ana", apellido: "Recepción", correo: "recepcion@gymlabs.com", rol: "RECEPCIONISTA" },
-];
+import { useAuth } from "@/context/AuthContext";
+import { toast } from "sonner";
+import { API_BASE_URL } from "@/config/api";
 
 export function TabPersonal() {
-  const [staff, setStaff] = useState(mockStaff);
+  const { user } = useAuth();
+  const [staff, setStaff] = useState<any[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingStaff, setEditingStaff] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  const fetchStaff = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/personal?empresaId=${user?.idEmpresa || 1}`, { credentials: "include" });
+      if (response.ok) {
+        const data = await response.json();
+        setStaff(data);
+      } else {
+        toast.error("Error al cargar el personal");
+      }
+    } catch (error) {
+      toast.error("Error al cargar el personal");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchStaff();
+  }, []);
 
   const handleOpenNew = () => {
     setEditingStaff(null);
@@ -20,23 +40,60 @@ export function TabPersonal() {
   };
 
   const handleEdit = (user: any) => {
-    setEditingStaff(user);
+    // El backend devuelve idPersonal, pero en el frontend se maneja como objeto completo
+    setEditingStaff({ ...user, rol: user.rol?.nombre || "RECEPCIONISTA" });
     setIsModalOpen(true);
   };
 
-  const handleDelete = (id: number) => {
+  const handleDelete = async (id: number) => {
     if(confirm("¿Estás seguro de eliminar este usuario del sistema? Ya no podrá iniciar sesión.")) {
-      setStaff(staff.filter(s => s.id !== id));
+      try {
+        const response = await fetch(`${API_BASE_URL}/personal/${id}`, { method: "DELETE", credentials: "include" });
+        if (response.ok) {
+          toast.success("Usuario eliminado exitosamente");
+          fetchStaff();
+        } else {
+          toast.error("Error al eliminar usuario");
+        }
+      } catch (error) {
+        toast.error("Error al eliminar usuario");
+      }
     }
   };
 
-  const handleSave = (data: any) => {
-    if (editingStaff) {
-      setStaff(staff.map(s => s.id === editingStaff.id ? { ...s, ...data } : s));
-    } else {
-      setStaff([...staff, { id: Date.now(), ...data }]);
+  const handleSave = async (data: any) => {
+    try {
+      let response;
+      if (editingStaff) {
+        response = await fetch(`${API_BASE_URL}/personal/${editingStaff.idPersonal}?empresaId=${user?.idEmpresa || 1}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify(data)
+        });
+      } else {
+        response = await fetch(`${API_BASE_URL}/personal?empresaId=${user?.idEmpresa || 1}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify(data)
+        });
+      }
+      
+      if (response.ok) {
+        toast.success(editingStaff ? "Usuario actualizado exitosamente" : "Usuario creado exitosamente");
+        setIsModalOpen(false);
+        fetchStaff();
+      } else if (response.status === 409) {
+        const errMsg = await response.text();
+        toast.error(errMsg || "El correo o DNI ya está en uso");
+      } else {
+        const errMsg = await response.text();
+        toast.error(errMsg || "Error al guardar el usuario");
+      }
+    } catch (error: any) {
+      toast.error("Error al guardar el usuario");
     }
-    setIsModalOpen(false);
   };
 
   return (
@@ -57,6 +114,8 @@ export function TabPersonal() {
             <thead className="bg-[#111] border-b border-[#222]">
               <tr>
                 <th className="px-6 py-4 font-semibold text-text-muted">Nombre Completo</th>
+                <th className="px-6 py-4 font-semibold text-text-muted">DNI</th>
+                <th className="px-6 py-4 font-semibold text-text-muted">Teléfono</th>
                 <th className="px-6 py-4 font-semibold text-text-muted">Correo de Acceso</th>
                 <th className="px-6 py-4 font-semibold text-text-muted">Rol</th>
                 <th className="px-6 py-4 font-semibold text-text-muted text-right">Acciones</th>
@@ -64,13 +123,15 @@ export function TabPersonal() {
             </thead>
             <tbody className="divide-y divide-[#222]">
               {staff.map((s) => (
-                <tr key={s.id} className="hover:bg-[#222] transition-colors group">
+                <tr key={s.idPersonal} className="hover:bg-[#222] transition-colors group">
                   <td className="px-6 py-4 font-medium text-white">
                     {s.nombre} {s.apellido}
                   </td>
+                  <td className="px-6 py-4 text-text-muted">{s.dni || '-'}</td>
+                  <td className="px-6 py-4 text-text-muted">{s.telefono || '-'}</td>
                   <td className="px-6 py-4 text-text-muted">{s.correo}</td>
                   <td className="px-6 py-4">
-                    {s.rol === 'ADMIN' ? (
+                    {s.rol?.nombre === 'ADMIN' ? (
                       <Badge className="bg-primary/10 text-primary border-primary/20">Administrador</Badge>
                     ) : (
                       <Badge variant="active" className="bg-blue-500/10 text-blue-400 border-blue-500/20">Recepcionista</Badge>
@@ -81,7 +142,7 @@ export function TabPersonal() {
                       <Button variant="ghost" size="sm" onClick={() => handleEdit(s)} className="text-text-muted hover:text-white h-8 w-8 p-0">
                         <Edit className="w-4 h-4" />
                       </Button>
-                      <Button variant="ghost" size="sm" onClick={() => handleDelete(s.id)} className="text-text-muted hover:text-alert hover:bg-alert/10 h-8 w-8 p-0">
+                      <Button variant="ghost" size="sm" onClick={() => handleDelete(s.idPersonal)} className="text-text-muted hover:text-alert hover:bg-alert/10 h-8 w-8 p-0">
                         <Trash2 className="w-4 h-4" />
                       </Button>
                     </div>

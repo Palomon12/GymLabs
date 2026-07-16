@@ -15,6 +15,8 @@ export function PersonalModal({ isOpen, onClose, onSave, initialData }: Personal
   const [formData, setFormData] = useState({
     nombre: "",
     apellido: "",
+    dni: "",
+    telefono: "",
     correo: "",
     rol: "RECEPCIONISTA",
     contrasena: ""
@@ -25,12 +27,14 @@ export function PersonalModal({ isOpen, onClose, onSave, initialData }: Personal
       setFormData({
         nombre: initialData.nombre || "",
         apellido: initialData.apellido || "",
+        dni: initialData.dni || "",
+        telefono: initialData.telefono || "",
         correo: initialData.correo || "",
         rol: initialData.rol || "RECEPCIONISTA",
         contrasena: ""
       });
     } else {
-      setFormData({ nombre: "", apellido: "", correo: "", rol: "RECEPCIONISTA", contrasena: "" });
+      setFormData({ nombre: "", apellido: "", dni: "", telefono: "", correo: "", rol: "RECEPCIONISTA", contrasena: "" });
     }
   }, [initialData, isOpen]);
 
@@ -59,6 +63,29 @@ export function PersonalModal({ isOpen, onClose, onSave, initialData }: Personal
               type="text" 
               value={formData.apellido}
               onChange={e => setFormData({...formData, apellido: e.target.value})}
+            />
+          </div>
+        </div>
+        
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <label className="text-sm font-semibold text-text-muted">DNI</label>
+            <Input 
+              required
+              type="text" 
+              maxLength={15}
+              value={formData.dni}
+              onChange={e => setFormData({...formData, dni: e.target.value})}
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-semibold text-text-muted">Teléfono</label>
+            <Input 
+              required
+              type="text" 
+              maxLength={20}
+              value={formData.telefono}
+              onChange={e => setFormData({...formData, telefono: e.target.value})}
             />
           </div>
         </div>
