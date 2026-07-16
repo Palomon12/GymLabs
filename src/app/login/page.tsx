@@ -6,20 +6,19 @@ import { Button } from "@/components/ui/button";
 import { User, Lock, Eye, EyeOff, ArrowRight, Activity, Loader2 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { API_BASE_URL } from "@/config/api";
+import { toast } from "sonner";
 
 export default function LoginPage() {
   const router = useRouter();
   const { login } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [errorMsg, setErrorMsg] = useState("");
 
   const [formData, setFormData] = useState({ username: "", password: "" });
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    setErrorMsg("");
     
     try {
       const response = await fetch(`${API_BASE_URL}/auth/login`, { credentials: "include",
@@ -35,7 +34,7 @@ export default function LoginPage() {
       const data = await response.json();
       login(data);
     } catch (err: any) {
-      setErrorMsg(err.message || "Error de conexión");
+      toast.error(err.message || "Error de conexión", { position: 'top-center' });
     } finally {
       setIsLoading(false);
     }
@@ -142,13 +141,6 @@ export default function LoginPage() {
                 </button>
               </div>
             </div>
-
-            {/* Error Message */}
-            {errorMsg && (
-              <div className="text-alert text-sm font-bold bg-alert/10 p-3 rounded-md border border-alert/20 text-center">
-                {errorMsg}
-              </div>
-            )}
 
             {/* Submit Button */}
             <div className="pt-2">
