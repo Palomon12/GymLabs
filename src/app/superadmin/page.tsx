@@ -34,7 +34,7 @@ export default function SuperAdminPage() {
   const fetchEmpresas = async () => {
     if (!user) return;
     try {
-      const res = await fetch(`${API_BASE_URL}/empresas`, {
+      const res = await fetch(`${API_BASE_URL}/empresas`, { credentials: "include",
         headers: {
           'Authorization': `Bearer ${user.token}`
         }
@@ -57,7 +57,7 @@ export default function SuperAdminPage() {
   useEffect(() => {
     if (selectedEmpresa && user) {
       setIsAdminLoading(true);
-      fetch(`${API_BASE_URL}/personal`, {
+      fetch(`${API_BASE_URL}/personal`, { credentials: "include",
         headers: { 'Authorization': `Bearer ${user.token}` }
       })
       .then(res => res.json())
@@ -86,7 +86,7 @@ export default function SuperAdminPage() {
     try {
       if (adminInfo.idPersonal) {
         // Update existing admin
-        const res = await fetch(`${API_BASE_URL}/personal/${adminInfo.idPersonal}`, {
+        const res = await fetch(`${API_BASE_URL}/personal/${adminInfo.idPersonal}`, { credentials: "include",
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -102,7 +102,7 @@ export default function SuperAdminPage() {
       } else {
         // Create new admin
         // 1. Fetch sedes to find the sede for this empresa
-        const sedesRes = await fetch(`${API_BASE_URL}/sedes`, {
+        const sedesRes = await fetch(`${API_BASE_URL}/sedes`, { credentials: "include",
           headers: { 'Authorization': `Bearer ${user.token}` }
         });
         const sedes = await sedesRes.json();
@@ -122,7 +122,7 @@ export default function SuperAdminPage() {
           sede: { idSede: sede.idSede }
         };
 
-        const res = await fetch(`${API_BASE_URL}/personal`, {
+        const res = await fetch(`${API_BASE_URL}/personal`, { credentials: "include",
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -155,7 +155,7 @@ export default function SuperAdminPage() {
     }
 
     try {
-      const res = await fetch(`${API_BASE_URL}/personal/${adminInfo.idPersonal}`, {
+      const res = await fetch(`${API_BASE_URL}/personal/${adminInfo.idPersonal}`, { credentials: "include",
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${user.token}` }
       });
@@ -180,7 +180,7 @@ export default function SuperAdminPage() {
     }
 
     try {
-      const res = await fetch(`${API_BASE_URL}/empresas/${selectedEmpresa.idEmpresa}`, {
+      const res = await fetch(`${API_BASE_URL}/empresas/${selectedEmpresa.idEmpresa}`, { credentials: "include",
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${user.token}`
@@ -207,7 +207,7 @@ export default function SuperAdminPage() {
     
     try {
       // 1. Crear Empresa
-      const empresaRes = await fetch(`${API_BASE_URL}/empresas`, {
+      const empresaRes = await fetch(`${API_BASE_URL}/empresas`, { credentials: "include",
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -223,7 +223,7 @@ export default function SuperAdminPage() {
       const nuevaEmpresa = await empresaRes.json();
 
       // 2. Crear Sede por defecto
-      const sedeRes = await fetch(`${API_BASE_URL}/sedes`, {
+      const sedeRes = await fetch(`${API_BASE_URL}/sedes`, { credentials: "include",
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -240,7 +240,7 @@ export default function SuperAdminPage() {
       const nuevaSede = await sedeRes.json();
 
       // 3. Crear Personal Admin
-      const personalRes = await fetch(`${API_BASE_URL}/personal`, {
+      const personalRes = await fetch(`${API_BASE_URL}/personal`, { credentials: "include",
         method: "POST",
         headers: {
           "Content-Type": "application/json",

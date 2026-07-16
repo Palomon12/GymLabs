@@ -42,7 +42,7 @@ export default function UsersPage() {
       if (search) url.searchParams.append("searchTerm", search);
       url.searchParams.append("filterStatus", status);
       
-      const response = await fetch(url.toString(), {
+      const response = await fetch(url.toString(), { credentials: "include",
         headers: { 'Authorization': `Bearer ${user.token}` }
       });
       if (response.ok) {
@@ -80,7 +80,7 @@ export default function UsersPage() {
       
     const method = id ? 'PUT' : 'POST';
     
-    const response = await fetch(url, {
+    const response = await fetch(url, { credentials: "include",
       method,
       headers: { 
         'Content-Type': 'application/json',
@@ -98,7 +98,7 @@ export default function UsersPage() {
 
   const deleteUser = async (id: number) => {
     if (!user) return;
-    const response = await fetch(`${API_BASE_URL}/clientes/${id}`, {
+    const response = await fetch(`${API_BASE_URL}/clientes/${id}`, { credentials: "include",
       method: 'DELETE',
       headers: { 'Authorization': `Bearer ${user.token}` }
     });
@@ -111,7 +111,7 @@ export default function UsersPage() {
       ? `${API_BASE_URL}/clientes/${id}/toggle-estado?planId=${planId}`
       : `${API_BASE_URL}/clientes/${id}/toggle-estado`;
 
-    const response = await fetch(url, { 
+    const response = await fetch(url, { credentials: "include", 
       method: 'PATCH',
       headers: { 'Authorization': `Bearer ${user.token}` }
     });

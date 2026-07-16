@@ -40,7 +40,7 @@ export default function DashboardPage() {
       
       try {
         const url = `${API_BASE_URL}/dashboard/stats?mes=${selectedMonth}&anio=${selectedYear}${user.idEmpresa ? `&empresaId=${user.idEmpresa}` : ''}`;
-        const response = await fetch(url, {
+        const response = await fetch(url, { credentials: "include",
           headers: { 'Authorization': `Bearer ${user.token}` }
         });
         if (response.ok && isMounted) {

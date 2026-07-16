@@ -22,7 +22,7 @@ export default function PlanesPage() {
     if (!user) return;
     setLoading(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/planes?empresaId=${user.idEmpresa || 1}`, {
+      const response = await fetch(`${API_BASE_URL}/planes?empresaId=${user.idEmpresa || 1}`, { credentials: "include",
         headers: { 'Authorization': `Bearer ${user.token}` }
       });
       if (response.ok) {
@@ -55,7 +55,7 @@ export default function PlanesPage() {
   const handleDelete = async (id: number) => {
     if (!user || !confirm("¿Estás seguro de que deseas eliminar este plan?")) return;
     try {
-      const res = await fetch(`${API_BASE_URL}/planes/${id}`, { 
+      const res = await fetch(`${API_BASE_URL}/planes/${id}`, { credentials: "include", 
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${user.token}` }
       });
@@ -75,7 +75,7 @@ export default function PlanesPage() {
       empresa: { idEmpresa: user.idEmpresa || 1 }
     };
     
-    const res = await fetch(url, {
+    const res = await fetch(url, { credentials: "include",
       method,
       headers: { 
         'Content-Type': 'application/json',

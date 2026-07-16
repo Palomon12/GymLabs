@@ -25,7 +25,7 @@ export default function AlertasPage() {
         url.searchParams.append("size", "1000");
         url.searchParams.append("empresaId", (user.idEmpresa || 1).toString());
 
-        const res = await fetch(url.toString(), {
+        const res = await fetch(url.toString(), { credentials: "include",
           headers: { 'Authorization': `Bearer ${user.token}` }
         });
         if (res.ok) {
@@ -65,7 +65,7 @@ export default function AlertasPage() {
     const diffDays = Math.ceil((new Date(selectedUser.fechaVencimiento).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
     
     try {
-      const res = await fetch(`${API_BASE_URL}/alertas/enviar`, {
+      const res = await fetch(`${API_BASE_URL}/alertas/enviar`, { credentials: "include",
         method: "POST",
         headers: { 
           "Content-Type": "application/json",

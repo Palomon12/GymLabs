@@ -93,7 +93,7 @@ export function UsersTable({
   useEffect(() => {
     if (pendingToggleUser && pendingToggleUser.activo === false) {
       const token = localStorage.getItem("gymlabs_auth") ? JSON.parse(localStorage.getItem("gymlabs_auth")!).token : "";
-      fetch(`${API_BASE_URL}/planes`, {
+      fetch(`${API_BASE_URL}/planes`, { credentials: "include",
         headers: { 'Authorization': `Bearer ${token}` }
       })
         .then(res => res.json())
