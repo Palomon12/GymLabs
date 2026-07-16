@@ -3,7 +3,7 @@
 import { Sidebar } from "@/components/layout/Sidebar";
 import { TopNav } from "@/components/layout/TopNav";
 import { useAuth } from "@/context/AuthContext";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function DashboardLayout({
@@ -13,6 +13,7 @@ export default function DashboardLayout({
 }) {
   const { user, isLoading } = useAuth();
   const router = useRouter();
+  const pathname = usePathname();
   const [isAuthorized, setIsAuthorized] = useState(false);
 
   useEffect(() => {
@@ -20,10 +21,16 @@ export default function DashboardLayout({
       if (!user || user.rol === "ROLE_SUPERADMIN") {
         router.push(user?.rol === "ROLE_SUPERADMIN" ? "/superadmin" : "/login");
       } else {
-        setIsAuthorized(true);
+        // Restricción de rutas para RECEPCIONISTA
+        const isRecepcionista = user.rol === 'ROLE_RECEPCIONISTA' || user.rol === 'RECEPCIONISTA';
+        if (isRecepcionista && (pathname === '/dashboard' || pathname === '/planes')) {
+          router.push('/');
+        } else {
+          setIsAuthorized(true);
+        }
       }
     }
-  }, [user, isLoading, router]);
+  }, [user, isLoading, router, pathname]);
 
   if (!isAuthorized) return null;
 

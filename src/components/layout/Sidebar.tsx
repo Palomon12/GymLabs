@@ -24,7 +24,16 @@ const navItems = [
 
 export function Sidebar() {
   const pathname = usePathname();
-  const { logout } = useAuth();
+  const { user, logout } = useAuth();
+  
+  // Filtrar items según rol
+  const filteredNavItems = navItems.filter(item => {
+    if (user?.rol === 'ROLE_RECEPCIONISTA' || user?.rol === 'RECEPCIONISTA') {
+      // Recepcionista solo ve Inicio y Alertas
+      return item.href === '/' || item.href === '/alertas';
+    }
+    return true; // Admin ve todo
+  });
 
   return (
     <aside className="w-[260px] bg-black border-r border-[#111111] h-full flex flex-col fixed left-0 top-0 z-50">
@@ -38,7 +47,7 @@ export function Sidebar() {
         </div>
 
         <nav className="space-y-1">
-          {navItems.map((item) => {
+          {filteredNavItems.map((item) => {
             const isActiveStrict = pathname === item.href;
             
             const activeClasses = isActiveStrict 
