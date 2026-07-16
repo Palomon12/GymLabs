@@ -39,7 +39,7 @@ export default function DashboardPage() {
       else setIsFetching(true);
       
       try {
-        const url = `${API_BASE_URL}/dashboard/stats?mes=${selectedMonth}&anio=${selectedYear}`;
+        const url = `${API_BASE_URL}/dashboard/stats?mes=${selectedMonth}&anio=${selectedYear}${user.idEmpresa ? `&empresaId=${user.idEmpresa}` : ''}`;
         const response = await fetch(url, {
           headers: { 'Authorization': `Bearer ${user.token}` }
         });
