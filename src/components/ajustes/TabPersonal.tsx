@@ -144,21 +144,42 @@ export function TabPersonal() {
                   <td className="px-6 py-4 text-text-muted">{s.telefono || '-'}</td>
                   <td className="px-6 py-4 text-text-muted">{s.correo}</td>
                   <td className="px-6 py-4">
-                    {s.rol?.nombre === 'ADMIN' ? (
+                    {s.rol?.nombre === 'SUPERADMIN' ? (
+                      <Badge className="bg-purple-500/10 text-purple-400 border-purple-500/20">Super Admin</Badge>
+                    ) : s.rol?.nombre === 'ADMIN' ? (
                       <Badge className="bg-primary/10 text-primary border-primary/20">Administrador</Badge>
                     ) : (
                       <Badge variant="active" className="bg-blue-500/10 text-blue-400 border-blue-500/20">Recepcionista</Badge>
                     )}
                   </td>
                   <td className="px-6 py-4 text-right">
-                    <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <Button variant="ghost" size="sm" onClick={() => handleEdit(s)} className="text-text-muted hover:text-white h-8 w-8 p-0">
-                        <Edit className="w-4 h-4" />
-                      </Button>
-                      <Button variant="ghost" size="sm" onClick={() => handleDelete(s.idPersonal)} className="text-text-muted hover:text-alert hover:bg-alert/10 h-8 w-8 p-0">
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </div>
+                    {(() => {
+                      // Determine if current user can edit this staff member
+                      const currentUserRole = user?.rol || "";
+                      const isSuperAdmin = currentUserRole === "ROLE_SUPERADMIN" || currentUserRole === "SUPERADMIN";
+                      const isAdmin = currentUserRole === "ROLE_ADMIN" || currentUserRole === "ADMIN";
+                      const staffRole = s.rol?.nombre || "";
+                      
+                      let canEditDelete = false;
+                      if (isSuperAdmin) {
+                        canEditDelete = true;
+                      } else if (isAdmin) {
+                        canEditDelete = staffRole !== "SUPERADMIN" && staffRole !== "ADMIN";
+                      }
+                      
+                      if (!canEditDelete) return null;
+                      
+                      return (
+                        <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <Button variant="ghost" size="sm" onClick={() => handleEdit(s)} className="text-text-muted hover:text-white h-8 w-8 p-0">
+                            <Edit className="w-4 h-4" />
+                          </Button>
+                          <Button variant="ghost" size="sm" onClick={() => handleDelete(s.idPersonal)} className="text-text-muted hover:text-alert hover:bg-alert/10 h-8 w-8 p-0">
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      );
+                    })()}
                   </td>
                 </tr>
               ))}
