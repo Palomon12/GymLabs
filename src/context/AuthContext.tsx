@@ -9,6 +9,8 @@ interface AuthUser {
   rol: string;
   idEmpresa?: number;
   empresaNombre?: string;
+  apellido?: string;
+  correo?: string;
 }
 
 interface AuthContextType {

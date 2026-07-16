@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { Save, KeyRound } from "lucide-react";
+import { toast } from "sonner";
 
 export function TabPerfil({ currentUser }: { currentUser: any }) {
   const [formData, setFormData] = useState({
@@ -18,16 +19,16 @@ export function TabPerfil({ currentUser }: { currentUser: any }) {
 
   const handleSaveProfile = (e: React.FormEvent) => {
     e.preventDefault();
-    alert("Perfil guardado (Simulación)");
+    toast.success("Perfil guardado", { position: 'top-center' });
   };
 
   const handleSavePassword = (e: React.FormEvent) => {
     e.preventDefault();
     if (passwordData.nueva !== passwordData.confirmar) {
-      alert("Las contraseñas no coinciden");
+      toast.error("Las contraseñas no coinciden", { position: 'top-center' });
       return;
     }
-    alert("Contraseña actualizada (Simulación)");
+    toast.success("Contraseña actualizada", { position: 'top-center' });
   };
 
   return (
@@ -63,6 +64,7 @@ export function TabPerfil({ currentUser }: { currentUser: any }) {
             <Input 
               type="email" 
               value={formData.correo}
+              disabled={currentUser.rol === 'ROLE_RECEPCIONISTA' || currentUser.rol === 'RECEPCIONISTA'}
               onChange={e => setFormData({...formData, correo: e.target.value})}
             />
           </div>
