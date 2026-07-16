@@ -20,6 +20,7 @@ interface AuthContextType {
   user: AuthUser | null;
   login: (userData: AuthUser) => void;
   logout: () => void;
+  updateUser: (userData: Partial<AuthUser>) => void;
   isLoading: boolean;
 }
 
@@ -55,6 +56,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     router.push("/login");
   };
 
+  const updateUser = (updatedData: Partial<AuthUser>) => {
+    if (user) {
+      const newUser = { ...user, ...updatedData };
+      setUser(newUser);
+      localStorage.setItem("gymlabs_auth", JSON.stringify(newUser));
+    }
+  };
+
   // Protect routes based on authentication
   useEffect(() => {
     if (!isLoading) {
@@ -73,7 +82,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [user, isLoading, pathname, router]);
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, isLoading }}>
+    <AuthContext.Provider value={{ user, login, logout, updateUser, isLoading }}>
       {isLoading ? (
         <div className="flex min-h-screen items-center justify-center bg-background text-primary">
           <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>

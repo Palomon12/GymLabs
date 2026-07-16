@@ -1,17 +1,29 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Save, KeyRound } from "lucide-react";
 import { toast } from "sonner";
+import { useAuth } from "@/context/AuthContext";
 
 import { API_BASE_URL } from "@/config/api";
 
 export function TabPerfil({ currentUser }: { currentUser: any }) {
+  const { updateUser } = useAuth();
+  
   const [formData, setFormData] = useState({
     nombre: currentUser.nombre || "",
     apellido: currentUser.apellido || "",
     correo: currentUser.correo || "",
   });
+
+  // Keep form in sync if currentUser changes (e.g. from context)
+  useEffect(() => {
+    setFormData({
+      nombre: currentUser.nombre || "",
+      apellido: currentUser.apellido || "",
+      correo: currentUser.correo || "",
+    });
+  }, [currentUser]);
 
   const [passwordData, setPasswordData] = useState({
     actual: "",
@@ -52,10 +64,12 @@ export function TabPerfil({ currentUser }: { currentUser: any }) {
 
       toast.success("Perfil guardado correctamente", { position: 'top-center' });
       
-      // Update local storage so the new name appears in the top nav
-      const updatedUser = { ...currentUser, nombre: formData.nombre, apellido: formData.apellido, correo: formData.correo };
-      localStorage.setItem("gymlabs_auth", JSON.stringify(updatedUser));
-      // Note: A full page reload or context update would be cleaner, but this updates the storage at least.
+      // Update context state globally so UI reflects changes immediately
+      updateUser({
+        nombre: formData.nombre,
+        apellido: formData.apellido,
+        correo: formData.correo
+      });
       
     } catch (error: any) {
       toast.error(error.message, { position: 'top-center' });
