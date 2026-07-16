@@ -6,9 +6,11 @@ GymLabs es una plataforma moderna diseñada para la gestión administrativa de g
 
 *   📊 **Dashboard Interactivo:** Métricas en tiempo real de ingresos, clientes activos y membresías usando `recharts`.
 *   👥 **Directorio de Usuarios (CRUD):** Registro, edición y eliminación segura de clientes con validaciones robustas.
+*   🔐 **Seguridad y Roles (RBAC):** Sistema estricto de roles (`ADMIN` vs `RECEPCIONISTA`) que limita vistas, edición de perfil y acceso a configuraciones de la empresa.
 *   🔍 **Búsqueda Dinámica:** Filtrado en tiempo real por nombre, apellido o DNI sin recargar la página.
 *   📄 **Paginación Inteligente:** Visualización fluida de datos grandes (10, 30 o 50 usuarios por vista).
 *   📥 **Exportación a Excel:** Descarga instantánea de la base de datos de usuarios en formato `.xlsx`.
+*   🔔 **Notificaciones Elegantes:** Feedback instantáneo con pop-ups Toast (Sonner) para acciones de éxito y error.
 *   🎨 **Diseño Moderno:** Interfaz oscura (Dark Mode), con acentos neón, 100% responsiva.
 *   🏗️ **Arquitectura Basada en Componentes:** Código estructurado, limpio y fácil de mantener usando Custom Hooks.
 
