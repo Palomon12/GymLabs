@@ -1,12 +1,11 @@
 import { useState } from "react";
-import { UserAuth } from "@/types/auth";
 import { TabPerfil } from "./TabPerfil";
 import { TabEmpresa } from "./TabEmpresa";
 import { TabPersonal } from "./TabPersonal";
 import { User, Building2, Users } from "lucide-react";
 
 interface AjustesTabsProps {
-  currentUser: UserAuth;
+  currentUser: any;
 }
 
 export function AjustesTabs({ currentUser }: AjustesTabsProps) {

@@ -1,14 +1,13 @@
-import { UserAuth } from "@/types/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { Save, KeyRound } from "lucide-react";
 
-export function TabPerfil({ currentUser }: { currentUser: UserAuth }) {
+export function TabPerfil({ currentUser }: { currentUser: any }) {
   const [formData, setFormData] = useState({
-    nombre: currentUser.nombre,
-    apellido: currentUser.apellido,
-    correo: currentUser.correo,
+    nombre: currentUser.nombre || "",
+    apellido: currentUser.apellido || "",
+    correo: currentUser.correo || "",
   });
 
   const [passwordData, setPasswordData] = useState({
