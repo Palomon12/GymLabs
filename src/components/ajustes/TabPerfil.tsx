@@ -130,7 +130,11 @@ export function TabPerfil({ currentUser }: { currentUser: any }) {
             <Input 
               type="text" 
               disabled
-              value={currentUser.rol === 'ADMIN' ? 'Administrador' : 'Recepcionista'}
+              value={
+                (currentUser.rol === 'ROLE_SUPERADMIN' || currentUser.rol === 'SUPERADMIN') ? 'Super Administrador' :
+                (currentUser.rol === 'ROLE_ADMIN' || currentUser.rol === 'ADMIN') ? 'Administrador' : 
+                'Recepcionista'
+              }
             />
           </div>
 
