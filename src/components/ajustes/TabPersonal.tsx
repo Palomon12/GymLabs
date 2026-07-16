@@ -16,7 +16,10 @@ export function TabPersonal() {
 
   const fetchStaff = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/personal?empresaId=${user?.idEmpresa || 1}`, { credentials: "include" });
+      const response = await fetch(`${API_BASE_URL}/personal?empresaId=${user?.idEmpresa || 1}`, { 
+        headers: { "Authorization": `Bearer ${user?.token}` },
+        credentials: "include" 
+      });
       if (response.ok) {
         const data = await response.json();
         setStaff(data);
@@ -48,7 +51,11 @@ export function TabPersonal() {
   const handleDelete = async (id: number) => {
     if(confirm("¿Estás seguro de eliminar este usuario del sistema? Ya no podrá iniciar sesión.")) {
       try {
-        const response = await fetch(`${API_BASE_URL}/personal/${id}`, { method: "DELETE", credentials: "include" });
+        const response = await fetch(`${API_BASE_URL}/personal/${id}`, { 
+          method: "DELETE", 
+          headers: { "Authorization": `Bearer ${user?.token}` },
+          credentials: "include" 
+        });
         if (response.ok) {
           toast.success("Usuario eliminado exitosamente");
           fetchStaff();
@@ -67,14 +74,20 @@ export function TabPersonal() {
       if (editingStaff) {
         response = await fetch(`${API_BASE_URL}/personal/${editingStaff.idPersonal}?empresaId=${user?.idEmpresa || 1}`, {
           method: "PUT",
-          headers: { "Content-Type": "application/json" },
+          headers: { 
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${user?.token}`
+          },
           credentials: "include",
           body: JSON.stringify(data)
         });
       } else {
         response = await fetch(`${API_BASE_URL}/personal?empresaId=${user?.idEmpresa || 1}`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { 
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${user?.token}`
+          },
           credentials: "include",
           body: JSON.stringify(data)
         });
