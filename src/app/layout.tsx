@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Hanken_Grotesk, Geist_Mono } from "next/font/google";
 import { AuthProvider } from "@/context/AuthContext";
+import { Toaster } from "sonner";
 import "./globals.css";
 
 const hanken = Hanken_Grotesk({
@@ -32,6 +33,7 @@ export default function RootLayout({
         <AuthProvider>
           {children}
         </AuthProvider>
+        <Toaster theme="dark" position="bottom-right" richColors />
       </body>
     </html>
   );
