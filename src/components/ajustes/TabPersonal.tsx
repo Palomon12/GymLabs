@@ -22,7 +22,9 @@ export function TabPersonal() {
       });
       if (response.ok) {
         const data = await response.json();
-        setStaff(data);
+        // Filtrar al creador del SaaS (SuperAdmin) para que no salga en la tabla
+        const filteredData = data.filter((s: any) => s.rol?.nombre !== 'SUPERADMIN' && s.rol?.nombre !== 'ROLE_SUPERADMIN');
+        setStaff(filteredData);
       } else {
         toast.error("Error al cargar el personal");
       }
