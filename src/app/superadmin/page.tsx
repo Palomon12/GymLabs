@@ -1,11 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Building2, Plus, Users, Calendar, Activity, Key } from "lucide-react";
+import { Building2, Plus, Users, Calendar, Activity, Key, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { API_BASE_URL } from "@/config/api";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "sonner";
+import { Modal } from "@/components/ui/modal";
 
 export default function SuperAdminPage() {
   const { user } = useAuth();
@@ -18,6 +19,9 @@ export default function SuperAdminPage() {
   const [adminInfo, setAdminInfo] = useState<any>(null);
   const [isAdminLoading, setIsAdminLoading] = useState(false);
   const [isUpdatingAdmin, setIsUpdatingAdmin] = useState(false);
+  const [adminToDelete, setAdminToDelete] = useState<any>(null);
+  const [empresaToDelete, setEmpresaToDelete] = useState<any>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Form states
   const [formData, setFormData] = useState({
@@ -162,15 +166,17 @@ export default function SuperAdminPage() {
     }
   };
 
-  const handleDeleteAdmin = async () => {
-    if (!adminInfo || !adminInfo.idPersonal || !user) return;
-    
-    if (!window.confirm("¿Estás seguro de que deseas eliminar este administrador?")) {
-      return;
-    }
+  const confirmDeleteAdmin = () => {
+    if (!adminInfo || !adminInfo.idPersonal) return;
+    setAdminToDelete(adminInfo);
+  };
 
+  const handleDeleteAdmin = async () => {
+    if (!adminToDelete || !user) return;
+    
+    setIsDeleting(true);
     try {
-      const res = await fetch(`${API_BASE_URL}/personal/${adminInfo.idPersonal}`, { credentials: "include",
+      const res = await fetch(`${API_BASE_URL}/personal/${adminToDelete.idPersonal}`, { credentials: "include",
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${user.token}` }
       });
@@ -178,24 +184,29 @@ export default function SuperAdminPage() {
       if (res.ok) {
         toast.success("Administrador eliminado", { position: 'top-center' });
         setAdminInfo(null);
+        setAdminToDelete(null);
       } else {
         toast.error("Error al eliminar administrador", { position: 'top-center' });
       }
     } catch (error) {
       console.error(error);
       toast.error("Error de conexión al intentar eliminar", { position: 'top-center' });
+    } finally {
+      setIsDeleting(false);
     }
   };
 
-  const handleDeleteEmpresa = async () => {
-    if (!selectedEmpresa || !user) return;
-    
-    if (!window.confirm("¿Estás seguro de que deseas eliminar a esta empresa y todo su historial de datos? Esta acción no se puede deshacer.")) {
-      return;
-    }
+  const confirmDeleteEmpresa = () => {
+    if (!selectedEmpresa) return;
+    setEmpresaToDelete(selectedEmpresa);
+  };
 
+  const handleDeleteEmpresa = async () => {
+    if (!empresaToDelete || !user) return;
+    
+    setIsDeleting(true);
     try {
-      const res = await fetch(`${API_BASE_URL}/empresas/${selectedEmpresa.idEmpresa}`, { credentials: "include",
+      const res = await fetch(`${API_BASE_URL}/empresas/${empresaToDelete.idEmpresa}`, { credentials: "include",
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${user.token}`
@@ -205,6 +216,7 @@ export default function SuperAdminPage() {
       if (res.ok) {
         toast.success("Empresa eliminada exitosamente", { position: 'top-center' });
         setSelectedEmpresa(null);
+        setEmpresaToDelete(null);
         fetchEmpresas();
       } else {
         toast.error("Error al eliminar la empresa. Es posible que tenga registros dependientes.", { position: 'top-center' });
@@ -212,6 +224,8 @@ export default function SuperAdminPage() {
     } catch (error) {
       console.error(error);
       toast.error("Error de conexión al intentar eliminar", { position: 'top-center' });
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -600,7 +614,7 @@ export default function SuperAdminPage() {
                     </div>
                     <div className="flex justify-between items-center pt-4 border-t border-border/30">
                       {adminInfo.idPersonal ? (
-                        <Button type="button" onClick={handleDeleteAdmin} disabled={isUpdatingAdmin} variant="outline" size="sm" className="border-alert text-alert hover:bg-alert/10">
+                        <Button type="button" onClick={confirmDeleteAdmin} disabled={isUpdatingAdmin} variant="outline" size="sm" className="border-alert text-alert hover:bg-alert/10">
                           Eliminar Administrador
                         </Button>
                       ) : (
@@ -624,7 +638,7 @@ export default function SuperAdminPage() {
               </div>
 
               <div className="pt-6 border-t border-border/50 flex justify-between items-center">
-                <Button onClick={handleDeleteEmpresa} variant="outline" className="border-alert text-alert hover:bg-alert/10 font-bold px-6">
+                <Button onClick={confirmDeleteEmpresa} variant="outline" className="border-alert text-alert hover:bg-alert/10 font-bold px-6">
                   Eliminar Empresa
                 </Button>
                 <Button onClick={() => setSelectedEmpresa(null)} className="bg-primary text-black font-bold px-8">
@@ -635,6 +649,47 @@ export default function SuperAdminPage() {
           </div>
         </div>
       )}
+
+      {/* Admin Delete Confirmation Modal */}
+      <Modal isOpen={!!adminToDelete} onClose={() => setAdminToDelete(null)} title="Eliminar Administrador">
+        <div className="space-y-6">
+          <div className="flex items-center gap-4 text-alert p-4 bg-alert/10 border border-alert/20 rounded-md">
+            <AlertTriangle className="w-8 h-8 flex-shrink-0" />
+            <p className="text-sm">
+              ¿Estás seguro de que deseas eliminar permanentemente a <strong>{adminToDelete?.nombre} {adminToDelete?.apellido}</strong>? Esta acción no se puede deshacer y el administrador perderá acceso al panel.
+            </p>
+          </div>
+          <div className="flex justify-end gap-3 pt-4 border-t border-border/50">
+            <Button variant="outline" onClick={() => setAdminToDelete(null)} disabled={isDeleting} className="border-border text-text-muted hover:text-white">
+              Cancelar
+            </Button>
+            <Button onClick={handleDeleteAdmin} disabled={isDeleting} className="bg-alert text-white hover:bg-alert/90 border-alert font-bold">
+              {isDeleting ? "Eliminando..." : "Sí, Eliminar Administrador"}
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Empresa Delete Confirmation Modal */}
+      <Modal isOpen={!!empresaToDelete} onClose={() => setEmpresaToDelete(null)} title="Eliminar Empresa">
+        <div className="space-y-6">
+          <div className="flex items-center gap-4 text-alert p-4 bg-alert/10 border border-alert/20 rounded-md">
+            <AlertTriangle className="w-8 h-8 flex-shrink-0" />
+            <p className="text-sm">
+              ¿Estás seguro de que deseas eliminar permanentemente a la empresa <strong>{empresaToDelete?.nombre}</strong>? 
+              Se eliminará <strong className="font-bold underline">todo su historial de datos, clientes, planes y administradores</strong>. ¡Esta acción es irreversible!
+            </p>
+          </div>
+          <div className="flex justify-end gap-3 pt-4 border-t border-border/50">
+            <Button variant="outline" onClick={() => setEmpresaToDelete(null)} disabled={isDeleting} className="border-border text-text-muted hover:text-white">
+              Cancelar
+            </Button>
+            <Button onClick={handleDeleteEmpresa} disabled={isDeleting} className="bg-alert text-white hover:bg-alert/90 border-alert font-bold">
+              {isDeleting ? "Eliminando..." : "Sí, Eliminar Empresa"}
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }
