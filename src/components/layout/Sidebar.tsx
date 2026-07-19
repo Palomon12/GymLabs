@@ -11,6 +11,7 @@ import {
   Settings,
   Plus,
   LogOut,
+  Wallet,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
@@ -19,6 +20,7 @@ const navItems = [
   { href: "/", label: "Inicio", icon: Users },
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/planes", label: "Planes", icon: CreditCard },
+  { href: "/pagos", label: "Pagos", icon: Wallet },
   { href: "/alertas", label: "Alertas", icon: BellRing },
 ];
 
