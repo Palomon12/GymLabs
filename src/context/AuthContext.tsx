@@ -56,12 +56,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     router.push("/login");
   };
 
-  const updateUser = (updatedData: Partial<AuthUser>) => {
-    if (user) {
-      const newUser = { ...user, ...updatedData };
-      setUser(newUser);
-      localStorage.setItem("gymlabs_auth", JSON.stringify(newUser));
-    }
+  const updateUser = (data: Partial<AuthUser>) => {
+    setUser((prev) => {
+      if (!prev) return prev;
+      const updatedUser = { ...prev, ...data };
+      
+      // Actualizar también en el localStorage para que persista
+      try {
+        const stored = localStorage.getItem("gymlabs_auth");
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          const newStored = { ...parsed, ...data };
+          localStorage.setItem("gymlabs_auth", JSON.stringify(newStored));
+        }
+      } catch (err) {
+        console.error("Error actualizando localStorage", err);
+      }
+      
+      return updatedUser;
+    });
   };
 
   // Protect routes based on authentication

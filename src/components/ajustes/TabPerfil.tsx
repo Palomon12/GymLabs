@@ -78,13 +78,52 @@ export function TabPerfil({ currentUser }: { currentUser: any }) {
     }
   };
 
-  const handleSavePassword = (e: React.FormEvent) => {
+  const [isPasswordLoading, setIsPasswordLoading] = useState(false);
+
+  const handleSavePassword = async (e: React.FormEvent) => {
     e.preventDefault();
     if (passwordData.nueva !== passwordData.confirmar) {
       toast.error("Las contraseñas no coinciden", { position: 'top-center' });
       return;
     }
-    toast.success("Contraseña actualizada", { position: 'top-center' });
+    
+    if (!currentUser.idPersonal) {
+      toast.error("No se pudo identificar al usuario actual", { position: 'top-center' });
+      return;
+    }
+
+    setIsPasswordLoading(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/personal/${currentUser.idPersonal}?empresaId=${currentUser.idEmpresa || 1}`, {
+        method: 'PUT',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${currentUser.token}`
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          nombre: formData.nombre,
+          apellido: formData.apellido,
+          correo: formData.correo,
+          rol: currentUser.rol,
+          dni: currentUser.dni || "00000000",
+          telefono: currentUser.telefono || "",
+          contrasena: passwordData.nueva
+        })
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || "Error al actualizar contraseña");
+      }
+
+      toast.success("Contraseña actualizada", { position: 'top-center' });
+      setPasswordData({ actual: "", nueva: "", confirmar: "" });
+    } catch (error: any) {
+      toast.error(error.message, { position: 'top-center' });
+    } finally {
+      setIsPasswordLoading(false);
+    }
   };
 
   return (
@@ -139,9 +178,9 @@ export function TabPerfil({ currentUser }: { currentUser: any }) {
           </div>
 
           <div className="pt-2">
-            <Button type="submit">
+            <Button type="submit" disabled={isLoading}>
               <Save className="w-4 h-4 mr-2" />
-              Guardar Cambios
+              {isLoading ? "Guardando cambios..." : "Guardar Cambios"}
             </Button>
           </div>
         </form>
@@ -190,8 +229,8 @@ export function TabPerfil({ currentUser }: { currentUser: any }) {
           </div>
 
           <div className="pt-2">
-            <Button type="submit" variant="secondary">
-              Actualizar Contraseña
+            <Button type="submit" variant="secondary" disabled={isPasswordLoading}>
+              {isPasswordLoading ? "Guardando cambios..." : "Actualizar Contraseña"}
             </Button>
           </div>
         </form>

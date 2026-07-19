@@ -68,7 +68,10 @@ export function TabPersonal() {
     }
   };
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const handleSave = async (data: any) => {
+    setIsSubmitting(true);
     try {
       let response;
       if (editingStaff) {
@@ -106,6 +109,8 @@ export function TabPersonal() {
       }
     } catch (error: any) {
       toast.error("Error al guardar el usuario");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -193,6 +198,7 @@ export function TabPersonal() {
         onClose={() => setIsModalOpen(false)}
         onSave={handleSave}
         initialData={editingStaff}
+        isSubmitting={isSubmitting}
       />
     </div>
   );

@@ -5,6 +5,7 @@ import { Building2, Plus, Users, Calendar, Activity, Key } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { API_BASE_URL } from "@/config/api";
 import { useAuth } from "@/context/AuthContext";
+import { toast } from "sonner";
 
 export default function SuperAdminPage() {
   const { user } = useAuth();
@@ -86,18 +87,29 @@ export default function SuperAdminPage() {
     try {
       if (adminInfo.idPersonal) {
         // Update existing admin
-        const res = await fetch(`${API_BASE_URL}/personal/${adminInfo.idPersonal}`, { credentials: "include",
+        const dto = {
+          nombre: adminInfo.nombre,
+          apellido: adminInfo.apellido,
+          dni: adminInfo.dni,
+          telefono: adminInfo.telefono,
+          correo: adminInfo.correo,
+          rol: "ADMIN",
+          contrasena: adminInfo.password || "" // Backend solo actualiza si no esta vacio
+        };
+
+        const res = await fetch(`${API_BASE_URL}/personal/${adminInfo.idPersonal}?empresaId=${selectedEmpresa.idEmpresa}`, { credentials: "include",
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${user.token}`
           },
-          body: JSON.stringify(adminInfo)
+          body: JSON.stringify(dto)
         });
         if (res.ok) {
-          alert("Datos del administrador actualizados correctamente");
+          toast.success("Datos del administrador actualizados correctamente", { position: 'top-center' });
         } else {
-          alert("Error al actualizar administrador");
+          const errMsg = await res.text();
+          toast.error(errMsg || "Error al actualizar administrador", { position: 'top-center' });
         }
       } else {
         // Create new admin
@@ -109,39 +121,42 @@ export default function SuperAdminPage() {
         const sede = sedes.find((s: any) => s.empresa?.idEmpresa === selectedEmpresa.idEmpresa);
         
         if (!sede) {
-          alert("No se encontró una sede para esta empresa. No se puede crear el admin.");
+          toast.error("No se encontró una sede para esta empresa. No se puede crear el admin.", { position: 'top-center' });
           setIsUpdatingAdmin(false);
           return;
         }
 
-        const nuevoAdmin = {
-          ...adminInfo,
-          fechaContratacion: new Date().toISOString().split('T')[0],
-          activo: true,
-          rol: { idRol: 1 },
-          sede: { idSede: sede.idSede }
+        const dto = {
+          nombre: adminInfo.nombre,
+          apellido: adminInfo.apellido,
+          dni: adminInfo.dni,
+          telefono: adminInfo.telefono,
+          correo: adminInfo.correo,
+          rol: "ADMIN",
+          contrasena: adminInfo.password
         };
 
-        const res = await fetch(`${API_BASE_URL}/personal`, { credentials: "include",
+        const res = await fetch(`${API_BASE_URL}/personal?empresaId=${selectedEmpresa.idEmpresa}`, { credentials: "include",
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${user.token}`
           },
-          body: JSON.stringify(nuevoAdmin)
+          body: JSON.stringify(dto)
         });
 
         if (res.ok) {
-          alert("Administrador asignado correctamente");
+          toast.success("Administrador asignado correctamente", { position: 'top-center' });
           const createdAdmin = await res.json();
           setAdminInfo({ ...createdAdmin, password: "" });
         } else {
-          alert("Error al crear el administrador");
+          const errMsg = await res.text();
+          toast.error(errMsg || "Error al crear el administrador", { position: 'top-center' });
         }
       }
     } catch (error) {
       console.error(error);
-      alert("Error de conexión");
+      toast.error("Error de conexión", { position: 'top-center' });
     } finally {
       setIsUpdatingAdmin(false);
     }
@@ -161,14 +176,14 @@ export default function SuperAdminPage() {
       });
 
       if (res.ok) {
-        alert("Administrador eliminado");
+        toast.success("Administrador eliminado", { position: 'top-center' });
         setAdminInfo(null);
       } else {
-        alert("Error al eliminar administrador");
+        toast.error("Error al eliminar administrador", { position: 'top-center' });
       }
     } catch (error) {
       console.error(error);
-      alert("Error de conexión al intentar eliminar");
+      toast.error("Error de conexión al intentar eliminar", { position: 'top-center' });
     }
   };
 
@@ -188,15 +203,15 @@ export default function SuperAdminPage() {
       });
 
       if (res.ok) {
-        alert("Empresa eliminada exitosamente");
+        toast.success("Empresa eliminada exitosamente", { position: 'top-center' });
         setSelectedEmpresa(null);
         fetchEmpresas();
       } else {
-        alert("Error al eliminar la empresa. Es posible que tenga registros dependientes.");
+        toast.error("Error al eliminar la empresa. Es posible que tenga registros dependientes.", { position: 'top-center' });
       }
     } catch (error) {
       console.error(error);
-      alert("Error de conexión al intentar eliminar");
+      toast.error("Error de conexión al intentar eliminar", { position: 'top-center' });
     }
   };
 
@@ -240,38 +255,41 @@ export default function SuperAdminPage() {
       const nuevaSede = await sedeRes.json();
 
       // 3. Crear Personal Admin
-      const personalRes = await fetch(`${API_BASE_URL}/personal`, { credentials: "include",
+      const dto = {
+        nombre: formData.adminNombre,
+        apellido: formData.adminApellido,
+        dni: formData.adminDni,
+        telefono: formData.adminTelefono,
+        correo: formData.adminCorreo,
+        rol: "ADMIN",
+        contrasena: formData.adminPassword
+      };
+
+      const personalRes = await fetch(`${API_BASE_URL}/personal?empresaId=${nuevaEmpresa.idEmpresa}`, { credentials: "include",
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${user.token}`
         },
-        body: JSON.stringify({
-          nombre: formData.adminNombre,
-          apellido: formData.adminApellido,
-          dni: formData.adminDni,
-          telefono: formData.adminTelefono,
-          correo: formData.adminCorreo,
-          password: formData.adminPassword,
-          fechaContratacion: new Date().toISOString().split('T')[0],
-          activo: true,
-          rol: { idRol: 1 }, // Asumiendo que 1 es ADMIN
-          sede: { idSede: nuevaSede.idSede }
-        })
+        body: JSON.stringify(dto)
       });
 
-      if (!personalRes.ok) throw new Error("Error creando admin");
+      if (!personalRes.ok) {
+        const errorMsg = await personalRes.text();
+        throw new Error(errorMsg || "Error creando admin");
+      }
 
       setShowModal(false);
       fetchEmpresas();
+      toast.success("Gimnasio y administrador creados con éxito", { position: 'top-center' });
       setFormData({
         nombreGimnasio: "", direccion: "", adminNombre: "", adminApellido: "",
         adminDni: "", adminTelefono: "", adminCorreo: "", adminPassword: ""
       });
 
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
-      alert("Ocurrió un error al crear la empresa y su administrador.");
+      toast.error(error.message || "Ocurrió un error al crear la empresa y su administrador.", { position: 'top-center' });
     } finally {
       setIsSubmitting(false);
     }
@@ -467,11 +485,11 @@ export default function SuperAdminPage() {
               </div>
 
               <div className="pt-6 flex justify-end gap-4">
-                <Button type="button" variant="outline" onClick={() => setShowModal(false)} className="border-border text-text-muted">
+                <Button type="button" variant="outline" onClick={() => setShowModal(false)} className="border-border text-text-muted" disabled={isSubmitting}>
                   Cancelar
                 </Button>
                 <Button type="submit" disabled={isSubmitting} className="bg-primary text-black font-bold">
-                  {isSubmitting ? "Procesando..." : "Crear Gimnasio y Admin"}
+                  {isSubmitting ? "Guardando cambios..." : "Crear Gimnasio y Admin"}
                 </Button>
               </div>
             </form>
@@ -582,14 +600,14 @@ export default function SuperAdminPage() {
                     </div>
                     <div className="flex justify-between items-center pt-4 border-t border-border/30">
                       {adminInfo.idPersonal ? (
-                        <Button type="button" onClick={handleDeleteAdmin} variant="outline" size="sm" className="border-alert text-alert hover:bg-alert/10">
+                        <Button type="button" onClick={handleDeleteAdmin} disabled={isUpdatingAdmin} variant="outline" size="sm" className="border-alert text-alert hover:bg-alert/10">
                           Eliminar Administrador
                         </Button>
                       ) : (
                         <div></div> // Spacer para alinear a la derecha
                       )}
                       <Button type="submit" disabled={isUpdatingAdmin} variant="outline" size="sm" className="border-primary text-primary hover:bg-primary/10">
-                        {isUpdatingAdmin ? "Guardando..." : (adminInfo.idPersonal ? "Actualizar Datos" : "Crear Administrador")}
+                        {isUpdatingAdmin ? "Guardando cambios..." : (adminInfo.idPersonal ? "Actualizar Datos" : "Crear Administrador")}
                       </Button>
                     </div>
                   </form>

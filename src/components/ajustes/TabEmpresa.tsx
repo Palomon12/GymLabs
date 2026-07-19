@@ -1,20 +1,78 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Save, UploadCloud } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
+import { API_BASE_URL } from "@/config/api";
+import { toast } from "sonner";
 
 export function TabEmpresa() {
+  const { user, updateUser } = useAuth();
+  
   const [formData, setFormData] = useState({
-    nombre: "GymLabs Elite Fitness",
-    direccion: "Av. Principal 123, Ciudad",
+    nombre: user?.empresaNombre || "GymLabs Elite Fitness",
+    direccion: "Av. Principal 123, Ciudad", // Esto debería venir de user si existiera en context, pero lo dejamos estático por ahora o lo leemos si agregamos al context
     telefono: "+51 987 654 321",
     correoContacto: "contacto@gymlabs.com",
     moneda: "S/"
   });
+  
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSave = (e: React.FormEvent) => {
+  // Intentamos pre-llenar con los datos reales llamando al backend al cargar
+  useEffect(() => {
+    if (user?.idEmpresa) {
+      fetch(`${API_BASE_URL}/empresas/${user.idEmpresa}`, {
+        headers: { 'Authorization': `Bearer ${user.token}` },
+        credentials: 'include'
+      })
+      .then(res => res.json())
+      .then(data => {
+        setFormData(prev => ({
+          ...prev,
+          nombre: data.nombre || prev.nombre,
+          direccion: data.direccion || prev.direccion,
+          telefono: data.telefono || prev.telefono,
+          correoContacto: data.correo || prev.correoContacto
+        }));
+      })
+      .catch(err => console.error("Error fetching empresa details:", err));
+    }
+  }, [user]);
+
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    alert("Ajustes de empresa guardados (Simulación)");
+    if (!user?.idEmpresa) return;
+    
+    setIsSubmitting(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/empresas/${user.idEmpresa}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${user.token}`
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          nombre: formData.nombre,
+          direccion: formData.direccion,
+          telefono: formData.telefono,
+          correo: formData.correoContacto,
+          activo: true
+        })
+      });
+
+      if (!response.ok) throw new Error("Error al guardar");
+      
+      toast.success("Ajustes de empresa guardados", { position: 'top-center' });
+      
+      // Update Context so the navbar reflects the new gym name
+      updateUser({ empresaNombre: formData.nombre });
+    } catch (error) {
+      toast.error("Ocurrió un error al guardar", { position: 'top-center' });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -88,9 +146,9 @@ export function TabEmpresa() {
           </div>
 
           <div className="pt-4">
-            <Button type="submit">
+            <Button type="submit" disabled={isSubmitting}>
               <Save className="w-4 h-4 mr-2" />
-              Guardar Configuración
+              {isSubmitting ? "Guardando cambios..." : "Guardar Configuración"}
             </Button>
           </div>
         </form>

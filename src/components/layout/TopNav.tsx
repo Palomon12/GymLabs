@@ -13,13 +13,18 @@ export function TopNav() {
 
       <div className="flex items-center gap-6">
         <div className="text-xl font-bold text-white tracking-widest uppercase">
-          {user?.empresaNombre ? (
+          {user?.rol === 'ROLE_SUPERADMIN' ? (
             <>
-              {user.empresaNombre.substring(0, 5)}<span className="text-primary">{user.empresaNombre.substring(5)}</span>
+              GYM<span className="text-primary">LABS</span>
+            </>
+          ) : user?.empresaNombre ? (
+            <>
+              {user.empresaNombre.substring(0, Math.floor(user.empresaNombre.length / 2))}
+              <span className="text-primary">{user.empresaNombre.substring(Math.floor(user.empresaNombre.length / 2))}</span>
             </>
           ) : (
             <>
-              SaaS<span className="text-primary">Admin</span>
+              GYM<span className="text-primary">LABS</span>
             </>
           )}
         </div>

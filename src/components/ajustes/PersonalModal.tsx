@@ -9,9 +9,10 @@ interface PersonalModalProps {
   onClose: () => void;
   onSave: (data: any) => void;
   initialData?: any;
+  isSubmitting?: boolean;
 }
 
-export function PersonalModal({ isOpen, onClose, onSave, initialData }: PersonalModalProps) {
+export function PersonalModal({ isOpen, onClose, onSave, initialData, isSubmitting = false }: PersonalModalProps) {
   const [formData, setFormData] = useState({
     nombre: "",
     apellido: "",
@@ -126,12 +127,12 @@ export function PersonalModal({ isOpen, onClose, onSave, initialData }: Personal
         </div>
 
         <div className="flex justify-end gap-3 pt-4 border-t border-[#222]">
-          <Button type="button" variant="secondary" onClick={onClose}>
+          <Button type="button" variant="secondary" onClick={onClose} disabled={isSubmitting}>
             Cancelar
           </Button>
-          <Button type="submit">
+          <Button type="submit" disabled={isSubmitting}>
             <Save className="w-4 h-4 mr-2" />
-            {initialData ? "Guardar Cambios" : "Crear Usuario"}
+            {isSubmitting ? "Guardando cambios..." : (initialData ? "Guardar Cambios" : "Crear Usuario")}
           </Button>
         </div>
       </form>
