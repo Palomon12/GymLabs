@@ -10,6 +10,7 @@ import { Cliente } from "@/types/cliente";
 import { DEFAULT_EMPRESA_ID } from "@/config/constants";
 import { API_BASE_URL } from "@/config/api";
 import { useAuth } from "@/context/AuthContext";
+import { toast } from "sonner";
 
 export default function UsersPage() {
   const { user } = useAuth();
@@ -161,8 +162,9 @@ export default function UsersPage() {
       setIsDeleteModalOpen(false);
       setUserToDelete(null);
       fetchUsers(currentPage - 1, itemsPerPage, searchTerm, filterStatus);
-    } catch (error) {
-      alert(error);
+      toast.success("Usuario eliminado exitosamente");
+    } catch (error: any) {
+      toast.error(error.message || "Error al eliminar usuario");
     } finally {
       setIsDeleting(false);
     }
