@@ -14,7 +14,7 @@ export interface Pago {
     };
     plan: {
       idPlan: number;
-      nombre: string;
+      nombrePlan: string;
     };
   };
 }

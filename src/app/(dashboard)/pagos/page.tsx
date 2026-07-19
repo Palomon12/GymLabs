@@ -8,12 +8,14 @@ import { Card } from "@/components/ui/card";
 import { PagosTable } from "@/components/pagos/PagosTable";
 import { PagoEditModal } from "@/components/pagos/PagoEditModal";
 import { toast } from "sonner";
-import { Wallet } from "lucide-react";
+import { Wallet, Search } from "lucide-react";
+import { Input } from "@/components/ui/input";
 
 export default function PagosPage() {
   const { user } = useAuth();
   const [pagos, setPagos] = useState<Pago[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
   
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingPago, setEditingPago] = useState<Pago | null>(null);
@@ -101,6 +103,17 @@ export default function PagosPage() {
     );
   }
 
+  // Filtro de búsqueda
+  const filteredPagos = pagos.filter(p => {
+    if (!searchTerm) return true;
+    const term = searchTerm.toLowerCase();
+    const clientName = p.membresia?.cliente ? `${p.membresia.cliente.nombre} ${p.membresia.cliente.apellido}`.toLowerCase() : "";
+    const clientDni = p.membresia?.cliente?.dni || "";
+    const planName = p.membresia?.plan?.nombrePlan?.toLowerCase() || "";
+    
+    return clientName.includes(term) || clientDni.includes(term) || planName.includes(term);
+  });
+
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-2">
@@ -108,11 +121,21 @@ export default function PagosPage() {
           <h2 className="text-3xl font-bold tracking-tight text-white mb-1">Gestión de Pagos</h2>
           <p className="text-text-muted">Administra el historial de transacciones y altera sus estados.</p>
         </div>
+        
+        <div className="w-full sm:w-[350px]">
+          <Input 
+            icon={<Search className="w-4 h-4" />}
+            placeholder="Buscar por cliente, DNI o plan..." 
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="h-11 w-full bg-[#121212] border-[#222] text-base"
+          />
+        </div>
       </div>
 
       <Card className="overflow-hidden bg-[#1A1A1A] border-[#222]">
         <PagosTable 
-          pagos={pagos} 
+          pagos={filteredPagos} 
           loading={loading} 
           onEdit={handleEditClick} 
         />

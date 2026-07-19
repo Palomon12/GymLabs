@@ -43,7 +43,7 @@ export function PagosTable({ pagos, loading, onEdit }: PagosTableProps) {
         <tbody className="divide-y divide-[#222]">
           {pagos.map((p) => {
             const clienteName = p.membresia?.cliente ? `${p.membresia.cliente.nombre} ${p.membresia.cliente.apellido}` : "Desconocido";
-            const planName = p.membresia?.plan?.nombre || "N/A";
+            const planName = p.membresia?.plan?.nombrePlan || "N/A";
             
             return (
               <tr key={p.idPago} className="hover:bg-[#1A1A1A] transition-colors group">
