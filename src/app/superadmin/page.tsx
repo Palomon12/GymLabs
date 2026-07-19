@@ -58,7 +58,7 @@ export default function SuperAdminPage() {
   useEffect(() => {
     if (selectedEmpresa && user) {
       setIsAdminLoading(true);
-      fetch(`${API_BASE_URL}/personal`, { credentials: "include",
+      fetch(`${API_BASE_URL}/personal?empresaId=${selectedEmpresa.idEmpresa}`, { credentials: "include",
         headers: { 'Authorization': `Bearer ${user.token}` }
       })
       .then(res => res.json())
