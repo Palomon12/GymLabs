@@ -1,13 +1,29 @@
 "use client";
 
 import { useAuth } from "@/context/AuthContext";
+import { Menu } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
-export function TopNav() {
+interface TopNavProps {
+  onMenuClick?: () => void;
+}
+
+export function TopNav({ onMenuClick }: TopNavProps) {
   const { user } = useAuth();
   
   return (
     <header className="h-20 bg-background/80 backdrop-blur-md sticky top-0 z-40 flex items-center justify-between px-8">
-      <div className="flex-1 max-w-md">
+      <div className="flex-1 max-w-md flex items-center gap-4">
+        {onMenuClick && (
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="lg:hidden text-text-muted hover:text-white"
+            onClick={onMenuClick}
+          >
+            <Menu className="w-6 h-6" />
+          </Button>
+        )}
         {/* Espacio reservado para título o breadcrumbs si se desean */}
       </div>
 

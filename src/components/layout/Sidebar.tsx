@@ -24,7 +24,11 @@ const navItems = [
   { href: "/alertas", label: "Alertas", icon: BellRing },
 ];
 
-export function Sidebar() {
+interface SidebarProps {
+  onNavigate?: () => void;
+}
+
+export function Sidebar({ onNavigate }: SidebarProps) {
   const pathname = usePathname();
   const { user, logout } = useAuth();
   
@@ -62,6 +66,7 @@ export function Sidebar() {
               <Link
                 key={item.href}
                 href={item.href}
+                onClick={onNavigate}
                 className={`flex items-center gap-4 px-4 py-3 rounded-lg text-sm font-semibold transition-all relative overflow-hidden group ${activeClasses}`}
               >
                 {isActiveStrict && (
@@ -78,6 +83,7 @@ export function Sidebar() {
       <div className="mt-auto p-6 border-t border-[#111111] flex flex-col gap-2">
         <Link
           href="/ajustes"
+          onClick={onNavigate}
           className={`flex items-center gap-4 px-4 py-3 rounded-lg text-sm font-semibold transition-all group ${pathname === "/ajustes" ? "bg-primary text-[#0A0F0D] shadow-[0_0_15px_rgba(195,244,0,0.2)]" : "text-text-muted hover:text-white hover:bg-[#111111]"}`}
         >
           <Settings className={`w-5 h-5 transition-transform duration-500 ${pathname !== "/ajustes" ? "group-hover:rotate-90" : ""}`} />

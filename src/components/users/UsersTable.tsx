@@ -177,8 +177,8 @@ export function UsersTable({
         </div>
       </Modal>
 
-      <div className="p-0">
-        <Table>
+      <div className="p-0 overflow-x-auto w-full">
+        <Table className="min-w-[800px]">
           <TableHeader>
             <TableRow className="border-b border-border bg-[#121212] hover:bg-[#121212]">
               <TableHead className="w-[300px]">Nombre</TableHead>
